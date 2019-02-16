@@ -56,15 +56,73 @@
     .ucType  = eBTuuidType128\
 }
 
-#define mqttBLECHAR_TX_LARGE_MESG_UUID_TYPE \
+#define mqttBLECHAR_LARGE_OBJECT_MTU_UUID_TYPE \
 {\
-    .uu.uu128 = mqttBLECHAR_TX_LARGE_MESG_UUID,\
+    .uu.uu128 = mqttBLECHAR_LARGE_OBJECT_MTU_UUID,\
     .ucType  = eBTuuidType128\
 }
 
-#define mqttBLECHAR_RX_LARGE_MESG_UUID_TYPE \
+#define mqttBLECHAR_LARGE_OBJECT_WINDOW_UUID_TYPE \
 {\
-    .uu.uu128 = mqttBLECHAR_RX_LARGE_MESG_UUID,\
+    .uu.uu128 = mqttBLECHAR_LARGE_OBJECT_WINDOW_UUID,\
+    .ucType  = eBTuuidType128\
+}
+
+#define mqttBLECHAR_LARGE_OBJECT_TIMEOUT_UUID_TYPE \
+{\
+    .uu.uu128 = mqttBLECHAR_LARGE_OBJECT_TIMEOUT_UUID,\
+    .ucType  = eBTuuidType128\
+}
+
+#define mqttBLECHAR_LARGE_OBJECT_RETRIES_UUID_TYPE \
+{\
+    .uu.uu128 = mqttBLECHAR_LARGE_OBJECT_RETRIES_UUID,\
+    .ucType  = eBTuuidType128\
+}
+
+#define mqttBLECHAR_TX_LARGE_MESG_UUID_TYPE1 \
+{\
+    .uu.uu128 = mqttBLECHAR_TX_LARGE_MESG_UUID1,\
+    .ucType  = eBTuuidType128\
+}
+
+#define mqttBLECHAR_TX_LARGE_MESG_UUID_TYPE2 \
+{\
+    .uu.uu128 = mqttBLECHAR_TX_LARGE_MESG_UUID2,\
+    .ucType  = eBTuuidType128\
+}
+#define mqttBLECHAR_TX_LARGE_MESG_UUID_TYPE3 \
+{\
+    .uu.uu128 = mqttBLECHAR_TX_LARGE_MESG_UUID3,\
+    .ucType  = eBTuuidType128\
+}
+#define mqttBLECHAR_TX_LARGE_MESG_UUID_TYPE4 \
+{\
+    .uu.uu128 = mqttBLECHAR_TX_LARGE_MESG_UUID4,\
+    .ucType  = eBTuuidType128\
+}
+
+#define mqttBLECHAR_RX_LARGE_MESG_UUID_TYPE1 \
+{\
+    .uu.uu128 = mqttBLECHAR_RX_LARGE_MESG_UUID1,\
+    .ucType  = eBTuuidType128\
+}
+
+#define mqttBLECHAR_RX_LARGE_MESG_UUID_TYPE2 \
+{\
+    .uu.uu128 = mqttBLECHAR_RX_LARGE_MESG_UUID2,\
+    .ucType  = eBTuuidType128\
+}
+
+#define mqttBLECHAR_RX_LARGE_MESG_UUID_TYPE3 \
+{\
+    .uu.uu128 = mqttBLECHAR_RX_LARGE_MESG_UUID3,\
+    .ucType  = eBTuuidType128\
+}
+
+#define mqttBLECHAR_RX_LARGE_MESG_UUID_TYPE4 \
+{\
+    .uu.uu128 = mqttBLECHAR_RX_LARGE_MESG_UUID4,\
     .ucType  = eBTuuidType128\
 }
 #define mqttBLECCFG_UUID_TYPE \
@@ -95,12 +153,12 @@ static MqttBLEService_t xMqttBLEServices[ mqttBLEMAX_SVC_INSTANCES ] = { 0 };
 static BTService_t xBLEServices[ mqttBLEMAX_SVC_INSTANCES ] = { 0 };
 
 static const BTAttribute_t pxAttributeTable[] = {
-     {    
+     {
           .xServiceUUID = mqttBLESERVICE_UUID_TYPE
      },
      {
          .xAttributeType = eBTDbCharacteristic,
-         .xCharacteristic = 
+         .xCharacteristic =
          {
               .xUuid = mqttBLECHAR_CONTROL_UUID_TYPE,
               .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
@@ -109,7 +167,7 @@ static const BTAttribute_t pxAttributeTable[] = {
      },
      {
          .xAttributeType = eBTDbCharacteristic,
-         .xCharacteristic = 
+         .xCharacteristic =
          {
               .xUuid = mqttBLECHAR_TX_MESG_UUID_TYPE,
               .xPermissions = ( IOT_BLE_CHAR_READ_PERM ),
@@ -126,20 +184,57 @@ static const BTAttribute_t pxAttributeTable[] = {
      },
      {
          .xAttributeType = eBTDbCharacteristic,
-         .xCharacteristic = 
+         .xCharacteristic =
          {
               .xUuid = mqttBLECHAR_RX_MESG_UUID_TYPE,
               .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
               .xProperties = ( eBTPropRead | eBTPropWrite )
-          }
+         }
      },
      {
-         .xAttributeType = eBTDbCharacteristic,
-         .xCharacteristic = 
-         {
-              .xUuid = mqttBLECHAR_TX_LARGE_MESG_UUID_TYPE,
-              .xPermissions = ( IOT_BLE_CHAR_READ_PERM ),
-              .xProperties = ( eBTPropRead | eBTPropNotify )
+             .xAttributeType = eBTDbCharacteristic,
+             .xCharacteristic =
+             {
+                     .xUuid = mqttBLECHAR_LARGE_OBJECT_MTU_UUID_TYPE,
+                     .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
+                     .xProperties = ( eBTPropRead  )
+             }
+     },
+     {
+             .xAttributeType = eBTDbCharacteristic,
+             .xCharacteristic =
+             {
+                     .xUuid = mqttBLECHAR_LARGE_OBJECT_WINDOW_UUID_TYPE,
+                     .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
+                     .xProperties = ( eBTPropRead  )
+             }
+     },
+     {
+             .xAttributeType = eBTDbCharacteristic,
+             .xCharacteristic =
+             {
+                     .xUuid = mqttBLECHAR_LARGE_OBJECT_TIMEOUT_UUID_TYPE,
+                     .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
+                     .xProperties = ( eBTPropRead  )
+             }
+     },
+     {
+             .xAttributeType = eBTDbCharacteristic,
+             .xCharacteristic =
+             {
+                     .xUuid = mqttBLECHAR_LARGE_OBJECT_RETRIES_UUID_TYPE,
+                     .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
+                     .xProperties = ( eBTPropRead  )
+             }
+     },
+
+     {
+             .xAttributeType = eBTDbCharacteristic,
+             .xCharacteristic =
+             {
+              .xUuid = mqttBLECHAR_TX_LARGE_MESG_UUID_TYPE1,
+              .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
+              .xProperties = ( eBTPropWriteNoResponse | eBTPropNotify )
           }
      },
      {
@@ -152,12 +247,122 @@ static const BTAttribute_t pxAttributeTable[] = {
      },
      {
          .xAttributeType = eBTDbCharacteristic,
-         .xCharacteristic = 
+         .xCharacteristic =
          {
-              .xUuid = mqttBLECHAR_RX_LARGE_MESG_UUID_TYPE,
+              .xUuid = mqttBLECHAR_TX_LARGE_MESG_UUID_TYPE2,
               .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
-              .xProperties = ( eBTPropRead | eBTPropWrite )
+              .xProperties = ( eBTPropWriteNoResponse | eBTPropNotify )
           }
+     },
+     {
+         .xAttributeType = eBTDbDescriptor,
+         .xCharacteristicDescr =
+         {
+             .xUuid = mqttBLECCFG_UUID_TYPE,
+             .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM )
+          }
+     },
+     {
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic =
+         {
+              .xUuid = mqttBLECHAR_TX_LARGE_MESG_UUID_TYPE3,
+              .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
+              .xProperties = ( eBTPropWriteNoResponse | eBTPropNotify )
+          }
+     },
+     {
+         .xAttributeType = eBTDbDescriptor,
+         .xCharacteristicDescr =
+         {
+             .xUuid = mqttBLECCFG_UUID_TYPE,
+             .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM )
+          }
+     },
+     {
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic =
+         {
+              .xUuid = mqttBLECHAR_TX_LARGE_MESG_UUID_TYPE4,
+              .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
+              .xProperties = ( eBTPropWriteNoResponse | eBTPropNotify )
+          }
+     },
+     {
+         .xAttributeType = eBTDbDescriptor,
+         .xCharacteristicDescr =
+         {
+             .xUuid = mqttBLECCFG_UUID_TYPE,
+             .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM )
+          }
+     },
+     {
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic =
+         {
+              .xUuid = mqttBLECHAR_RX_LARGE_MESG_UUID_TYPE1,
+              .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
+              .xProperties = ( eBTPropWriteNoResponse | eBTPropNotify )
+          }
+     },
+     {
+              .xAttributeType = eBTDbDescriptor,
+              .xCharacteristicDescr =
+              {
+                  .xUuid = mqttBLECCFG_UUID_TYPE,
+                  .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM )
+              }
+     },
+     {
+             .xAttributeType = eBTDbCharacteristic,
+             .xCharacteristic =
+             {
+                     .xUuid = mqttBLECHAR_RX_LARGE_MESG_UUID_TYPE2,
+                     .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
+                     .xProperties = ( eBTPropWriteNoResponse | eBTPropNotify )
+             }
+     },
+     {
+             .xAttributeType = eBTDbDescriptor,
+             .xCharacteristicDescr =
+             {
+                     .xUuid = mqttBLECCFG_UUID_TYPE,
+                     .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM )
+             }
+     },
+     {
+             .xAttributeType = eBTDbCharacteristic,
+             .xCharacteristic =
+             {
+                     .xUuid = mqttBLECHAR_RX_LARGE_MESG_UUID_TYPE3,
+                     .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
+                     .xProperties = ( eBTPropWriteNoResponse | eBTPropNotify )
+             }
+     },
+     {
+             .xAttributeType = eBTDbDescriptor,
+             .xCharacteristicDescr =
+             {
+                     .xUuid = mqttBLECCFG_UUID_TYPE,
+                     .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM )
+             }
+     },
+     {
+             .xAttributeType = eBTDbCharacteristic,
+             .xCharacteristic =
+             {
+                     .xUuid = mqttBLECHAR_RX_LARGE_MESG_UUID_TYPE4,
+                     .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
+                     .xProperties = ( eBTPropWriteNoResponse | eBTPropNotify )
+             }
+     },
+     {
+             .xAttributeType = eBTDbDescriptor,
+             .xCharacteristicDescr =
+             {
+                     .xUuid = mqttBLECCFG_UUID_TYPE,
+                     .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM )
+             }
      }
 };
 
@@ -255,6 +460,18 @@ static void vConnectionCallback( BTStatus_t xStatus,
 static void vMTUChangedCallback( uint16_t connId,
                                  uint16_t usMtu );
 
+
+static void vLargeObjectReceiveCallback (
+        const uint16_t usSessionID,
+        const uint8_t * pucData,
+        size_t xDataLength,
+        BaseType_t xComplete );
+
+static size_t vLargeObjectSendMTU(
+       void * pvConnection,
+       const void * const pvMessage ,
+       size_t xLength );
+
 /*
  * @brief stdio.h conflict with posix library on some platform so using extern snprintf so not to include it.
  */
@@ -268,10 +485,27 @@ static const IotBleAttributeEventCallback_t pxCallBackArray[eMQTTBLE_NUMBER] =
   vTXMesgCharCallback,
   vClientCharCfgDescrCallback,
   vRXMesgCharCallback,
+  vMtuCharCallback,
+  vWindowCharCallback,
+  vTimeoutCharCallback,
+  vRetriesCharCallback,
   vTXLargeMesgCharCallback,
   vClientCharCfgDescrCallback,
-  vRXLargeMesgCharCallback
-};
+  vTXLargeMesgCharCallback,
+  vClientCharCfgDescrCallback,
+  vTXLargeMesgCharCallback,
+  vClientCharCfgDescrCallback,
+  vTXLargeMesgCharCallback,
+  vClientCharCfgDescrCallback,
+  vRXLargeMesgCharCallback,
+  vClientCharCfgDescrCallback,
+  vRXLargeMesgCharCallback,
+  vClientCharCfgDescrCallback,
+  vRXLargeMesgCharCallback,
+  vClientCharCfgDescrCallback,
+  vRXLargeMesgCharCallback,
+  vClientCharCfgDescrCallback
+ };
 
 /*-----------------------------------------------------------*/
 
@@ -582,99 +816,30 @@ void vRXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
     xResp.eventStatus = eBTStatusFail;
     xResp.attrDataOffset = 0;
 
-    if( ( pEventParam->xEventType == eBLEWrite ) || ( pEventParam->xEventType == eBLEWriteNoResponse ) )
+    if( (  pEventParam->xEventType == eBLEWriteNoResponse ) )
     {
         pxWriteParam = pEventParam->pParamWrite;
         pxService = prxGetServiceInstance( pxWriteParam->attrHandle );
         configASSERT( ( pxService != NULL ) );
 
         xResp.pAttrData->handle = pxWriteParam->attrHandle;
-        
         xResp.pAttrData->uuid = CHAR_UUID( pxService->pxServicePtr, eMQTTBLE_CHAR_RX_LARGE );
 
-        if( ( !pxWriteParam->isPrep ) &&
-        		( pxService->xConnection.pxMqttConnection != NULL ) &&
+        if(( pxService->xConnection.pxMqttConnection != NULL ) &&
 				( pxService->bIsEnabled ) )
         {
-        	if( xSemaphoreTake( pxService->xConnection.xRecvLock, 0 ) == pdTRUE )
-        	{
-        		/**
-        		 * Create a new buffer if the buffer is empty.
-        		 */
-        		if( pxService->xConnection.pRecvBuffer == NULL )
-        		{
-        			pxService->xConnection.pRecvBuffer = pvPortMalloc( mqttBLERX_BUFFER_SIZE );
-        			if( pxService->xConnection.pRecvBuffer != NULL )
-        			{
-        				pxService->xConnection.xRecvBufferLen = mqttBLERX_BUFFER_SIZE;
+        	pxService->xConnection.xLotCallback(
+        	        pxService->xConnection.pvLoTContext,
+        	        pxWriteParam->pValue,
+        	        pxWriteParam->length );
 
-        			}
-        			else
-        			{
-        				xResult = pdFALSE;
-					}
-        		}
-        		else
-        		{
-        			/**
-        			 *  If current buffer can't hold the received data, resize the buffer by twicke the current size.
-        			 */
-        			if( ( pxService->xConnection.xRecvOffset + pxWriteParam->length ) > pxService->xConnection.xRecvBufferLen )
-        			{
-        				pxService->xConnection.pRecvBuffer = prvReallocBuffer( pxService->xConnection.pRecvBuffer,
-        						pxService->xConnection.xRecvBufferLen,
-								( 2 * pxService->xConnection.xRecvBufferLen ) );
+        	xResp.eventStatus = eBTStatusSuccess;
 
-        				if( pxService->xConnection.pRecvBuffer != NULL )
-        				{
-        					pxService->xConnection.xRecvBufferLen = ( pxService->xConnection.xRecvBufferLen * 2 );
-
-        				}
-        				else
-        				{
-        					xResult = pdFALSE;
-        				}
-
-        			}
-        		}
-
-        		if( xResult == pdTRUE )
-        		{
-        			/**
-        			 * Copy the received data into the buffer.
-        			 */
-        			pucBufOffset = ( uint8_t* ) pxService->xConnection.pRecvBuffer + pxService->xConnection.xRecvOffset;
-        			memcpy( pucBufOffset, pxWriteParam->pValue, pxWriteParam->length );
-        			pxService->xConnection.xRecvOffset += pxWriteParam->length;
-
-        			if( pxWriteParam->length < mqttBLETRANSFER_LEN( usBLEConnMTU ) )
-        			{
-
-        				( void ) AwsIotMqtt_ReceiveCallback( pxService->xConnection.pxMqttConnection,
-        						                pxService->xConnection.pRecvBuffer,
-        										0,
-												pxService->xConnection.xRecvOffset,
-        										vPortFree );
-
-        				pxService->xConnection.pRecvBuffer = NULL;
-        				pxService->xConnection.xRecvBufferLen = 0;
-        				pxService->xConnection.xRecvOffset = 0;
-        			}
-
-        			xResp.eventStatus = eBTStatusSuccess;
-        		}
-
-        		( void ) xSemaphoreGive( pxService->xConnection.xRecvLock );
-        	}
         }
-
-        if( pEventParam->xEventType == eBLEWrite )
-        {
-            xResp.attrDataOffset = pxWriteParam->offset;
-            xResp.pAttrData->pData = pxWriteParam->pValue;
-            xResp.pAttrData->size = pxWriteParam->length;
-            IotBle_SendResponse( &xResp, pxWriteParam->connId, pxWriteParam->transId );
-        }
+    }
+    else
+    {
+        configPRINTF(("ERROR, RX large should receive write commands\n" ));
     }
 }
 
@@ -750,10 +915,10 @@ void vClientCharCfgDescrCallback( IotBleAttributeEvent_t * pEventParam )
 
             if( pEventParam->pParamWrite->attrHandle == pxMQTTService->pxServicePtr->pusHandlesBuffer[eMQTTBLE_CHAR_DESCR_TX_MESG])
             {
-                 pxMQTTService->usDescrVal[ eMQTTBLETXMessageDescr ] = usCCFGValue;
+                 pxMQTTService->usCCFGEnabled = usCCFGValue;
             }else 
             {
-                 pxMQTTService->usDescrVal[ eMQTTBLETXLargeMessageDescr ] = usCCFGValue;
+                 pxMQTTService->usCCFGEnabled = usCCFGValue;
             }
             
             xResp.eventStatus = eBTStatusSuccess;
@@ -776,10 +941,10 @@ void vClientCharCfgDescrCallback( IotBleAttributeEvent_t * pEventParam )
         xResp.eventStatus = eBTStatusSuccess;
         if( pEventParam->pParamWrite->attrHandle == pxMQTTService->pxServicePtr->pusHandlesBuffer[eMQTTBLE_CHAR_DESCR_TX_MESG])
         {
-            xResp.pAttrData->pData = ( uint8_t * ) &pxMQTTService->usDescrVal[ eMQTTBLETXMessageDescr ];
+            xResp.pAttrData->pData = ( uint8_t * ) &pxMQTTService->usCCFGEnabled;
         }else 
         {
-            xResp.pAttrData->pData = ( uint8_t * ) &pxMQTTService->usDescrVal[ eMQTTBLETXLargeMessageDescr ];
+            xResp.pAttrData->pData = ( uint8_t * ) &pxMQTTService->usCCFGEnabled;
         }
 
         xResp.pAttrData->size = 2;
@@ -832,6 +997,65 @@ static void vMTUChangedCallback( uint16_t connId,
 
 }
 
+static void vLargeObjectReceiveCallback (
+        const uint16_t usSessionID,
+        const uint8_t * pucData,
+        size_t xDataLength,
+        BaseType_t xComplete )
+{
+    uint8_t ucId;
+    MqttBLEService_t* pxService;
+
+    configASSERT( xComplete == pdTRUE );
+
+    for( ucId = 0; ucId < mqttBLEMAX_SVC_INSTANCES; ucId++ )
+    {
+        pxService = &xMqttBLEServices[ ucId ];
+        if( pxService->xConnection.usRecvSessionID == usSessionID )
+        {
+            ( void ) AwsIotMqtt_ReceiveCallback(
+                    pxService->xConnection.pxMqttConnection,
+                    pucData,
+                    0,
+                    xDataLength,
+                    NULL );
+            break;
+        }
+    }
+}
+
+
+
+static size_t vLargeObjectSendMTU(
+       void * pvConnection,
+       const void * const pvMessage ,
+       size_t xLength )
+{
+
+}
+
+
+
+static void vLargeObjectSendCallback(
+        uint16_t usSessionID,
+        AwsIotLargeObjectTransferError_t xResult )
+{
+    uint8_t ucId;
+    MqttBLEService_t* pxService;
+
+    for( ucId = 0; ucId < mqttBLEMAX_SVC_INSTANCES; ucId++ )
+    {
+        pxService = &xMqttBLEServices[ ucId ];
+        if( pxService->xConnection.usSendSessionID == usSessionID )
+        {
+            xSemaphoreGive( pxService->xConnection.xSendLock );
+            break;
+        }
+    }
+
+}
+
+
 /*-----------------------------------------------------------*/
 
 BaseType_t AwsIotMqttBLE_Init( void )
@@ -840,6 +1064,7 @@ BaseType_t AwsIotMqttBLE_Init( void )
     uint8_t ucId;
     IotBleEventsCallbacks_t xCallback;
     MqttBLEService_t *pxService;
+    AwsIotLargeObjectTransferError_t xError;
 
     usBLEConnMTU = mqttBLEDEFAULT_MTU_SIZE;
 
@@ -894,43 +1119,24 @@ BaseType_t AwsIotMqttBLE_Init( void )
 
         if( xRet == pdPASS )
         {
-        	pxService->xConnection.xRecvLock = xSemaphoreCreateBinary();
-        	if( pxService->xConnection.xRecvLock != NULL )
-        	{
-        		( void ) xSemaphoreGive( pxService->xConnection.xRecvLock );
-        	}
-        	else
-        	{
-        		xRet = pdFAIL;
-        	}
+            pxService->xLOTContext.xCompletionCallback = vLargeObjectSendCallback;
+            pxService->xLOTContext.xReceiveCallback = vLargeObjectReceiveCallback;
+            pxService->xLOTContext.xNetworkIface.pvConnection = pxService;
+            pxService->xLOTContext.xNetworkIface.send = vLargeObjectSendMTU;
 
-        }
-
-        if( xRet == pdPASS )
-        {
-        	pxService->xConnection.xSendBuffer = xStreamBufferCreate( mqttBLETX_BUFFER_SIZE, mqttBLEDEFAULT_MTU_SIZE );
-
-            if(pxService->xConnection.xSendBuffer == NULL )
+            xError = AwsIotLargeObjectTransfer_Init( &pxService->xLOTContext, 1, 1 );
+            if( xError != AWS_IOT_LARGE_OBJECT_TRANSFER_SUCCESS )
             {
-                xRet = pdFALSE;
+                configPRINTF(( "Failed to initialize large object transfer context " ));
             }
         }
+
 
         if( xRet == pdFALSE )
         {
             if( pxService->xConnection.xSendLock != NULL )
             {
                 vSemaphoreDelete( pxService->xConnection.xSendLock );
-            }
-
-            if( pxService->xConnection.xRecvLock != NULL )
-            {
-            	vSemaphoreDelete( pxService->xConnection.xRecvLock );
-            }
-
-            if( pxService->xConnection.xSendBuffer != NULL )
-            {
-                vStreamBufferDelete( pxService->xConnection.xSendBuffer );
             }
 
             break;
@@ -1002,10 +1208,10 @@ BaseType_t AwsIotMqttBLE_SetSendTimeout( AwsIotMqttBLEConnection_t xConnection, 
 size_t AwsIotMqttBLE_Send( void* pvConnection, const void * const pvMessage, size_t xMessageLength )
 {
     MqttBLEService_t * pxService = ( MqttBLEService_t * ) pvConnection;
-    size_t xSendLen, xRemainingLen = xMessageLength;
+    size_t xSent = 0;
     TickType_t xRemainingTime = pxService->xConnection.xSendTimeout;
     TimeOut_t xTimeout;
-    uint8_t * pucData;
+    AwsIotLargeObjectTransferError_t xError;
 
     vTaskSetTimeOutState( &xTimeout );
 
@@ -1015,60 +1221,48 @@ size_t AwsIotMqttBLE_Send( void* pvConnection, const void * const pvMessage, siz
         {
             if( prxSendNotification( pxService, eMQTTBLE_CHAR_TX_MESG, ( uint8_t *) pvMessage, xMessageLength ) == pdTRUE )
             {
-                xRemainingLen = 0;
-            }else
+                xSent = xMessageLength;
+            }
+            else
             {
-                 configPRINTF( ( "Failed to send notify\n") );
+                 configPRINTF( ( "Failed to send notify for MQTT service\r\n" ));
             }
         }
         else
         {
             if( xSemaphoreTake( pxService->xConnection.xSendLock, xRemainingTime ) == pdPASS )
             {
-                xSendLen = ( size_t ) mqttBLETRANSFER_LEN( usBLEConnMTU );
-                pucData = ( uint8_t *) pvMessage;
+                xError = AwsIotLargeObjectTransfer_Send(
+                        &pxService->xLOTContext,
+                        ( const uint8_t * ) pvMessage,
+                        xMessageLength,
+                        &pxService->xConnection.usSendSessionID );
 
-                if( prxSendNotification( pxService, eMQTTBLE_CHAR_TX_LARGE_MESG, pucData, xSendLen ) == pdTRUE )
+                if( xError == AWS_IOT_LARGE_OBJECT_TRANSFER_SUCCESS )
                 {
-                    xRemainingLen = xRemainingLen - xSendLen;
-                    pucData += xSendLen;
-
-                    while( xRemainingLen > 0 )
+                    ( void ) xTaskCheckForTimeOut( &xTimeout, &xRemainingTime );
+                    if( xSemaphoreTake( pxService->xConnection.xSendLock, xRemainingTime ) == pdPASS )
                     {
-                        if( !( pxService->bIsEnabled ) ||
-                        		( pxService->xConnection.pxMqttConnection == NULL ) ||
-                        		( xTaskCheckForTimeOut( &xTimeout, &xRemainingTime ) == pdTRUE ) )
-                        {
-                            xStreamBufferReset( pxService->xConnection.xSendBuffer );
-                            xSemaphoreGive( pxService->xConnection.xSendLock );
-                            break;
-                        }
-
-                        if( xRemainingLen < mqttBLETX_BUFFER_SIZE )
-                        {
-                            xSendLen = xRemainingLen;
-                        }
-                        else
-                        {
-                            xSendLen = mqttBLETX_BUFFER_SIZE;
-                        }
-
-                        xSendLen = xStreamBufferSend( pxService->xConnection.xSendBuffer, pucData, xSendLen, xRemainingTime );
-                        xRemainingLen -= xSendLen;
-                        pucData += xSendLen;
-
+                        xSent = xMessageLength;
+                        xSemaphoreGive( pxService->xConnection.xSendLock );
                     }
-                }else
+                    else
+                    {
+                        configPRINTF(( "Failed to complete large object send for MQTT service.\r\n" ));
+                    }
+                }
+                else
                 {
-                      configPRINTF( ( "Failed to send notify\n") );
+                    configPRINTF(( "Failed to complete large object send for MQTT service, error = %d.\r\n", xError ));
+                    xSemaphoreGive( pxService->xConnection.xSendLock );
                 }
             }
         }
     }
     else
     {
-        configPRINTF( ( "Failed to send notification, mqtt proxy state:%d \n", pxService->bIsEnabled ) );
+        configPRINTF( ( "Failed to send data, mqtt service state:%d \n", pxService->bIsEnabled ) );
     }
 
-    return( xMessageLength - xRemainingLen );
+    return xSent;
 }

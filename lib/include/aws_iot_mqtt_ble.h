@@ -41,6 +41,7 @@
 #include "iot_ble.h"
 #include "aws_iot_mqtt.h"
 #include "aws_iot_mqtt_serialize_ble.h"
+#include "aws_iot_large_object_transfer.h"
 
 
 /**
@@ -50,9 +51,22 @@
 #define mqttBLECHAR_UUID_MASK	          0xC3, 0x4C, 0x04, 0x48, 0x02, 0xA0, 0xA9, 0x40, 0x2E, 0xD7, 0x6A, 0x16, 0xD7, 0xA9
 #define mqttBLECHAR_CONTROL_UUID          {0x01, 0xFF, mqttBLECHAR_UUID_MASK }
 #define mqttBLECHAR_TX_MESG_UUID          {0x02, 0xFF, mqttBLECHAR_UUID_MASK }
-#define mqttBLECHAR_RX_MESG_UUID	  {0x03, 0xFF, mqttBLECHAR_UUID_MASK }
-#define mqttBLECHAR_TX_LARGE_MESG_UUID    {0x04, 0xFF, mqttBLECHAR_UUID_MASK }
-#define mqttBLECHAR_RX_LARGE_MESG_UUID    {0x05, 0xFF, mqttBLECHAR_UUID_MASK }
+#define mqttBLECHAR_RX_MESG_UUID	      {0x03, 0xFF, mqttBLECHAR_UUID_MASK }
+
+#define mqttBLECHAR_LARGE_OBJECT_MTU_UUID             {0x04, 0xFF, mqttBLECHAR_UUID_MASK }
+#define mqttBLECHAR_LARGE_OBJECT_WINDOW_UUID          {0x05, 0xFF, mqttBLECHAR_UUID_MASK }
+#define mqttBLECHAR_LARGE_OBJECT_TIMEOUT_UUID         {0x06, 0xFF, mqttBLECHAR_UUID_MASK }
+#define mqttBLECHAR_LARGE_OBJECT_RETRIES_UUID         {0x07, 0xFF, mqttBLECHAR_UUID_MASK }
+
+#define mqttBLECHAR_TX_LARGE_MESG_UUID1    {0x08, 0xFF, mqttBLECHAR_UUID_MASK }
+#define mqttBLECHAR_TX_LARGE_MESG_UUID2    {0x09, 0xFF, mqttBLECHAR_UUID_MASK }
+#define mqttBLECHAR_TX_LARGE_MESG_UUID3    {0x0A, 0xFF, mqttBLECHAR_UUID_MASK }
+#define mqttBLECHAR_TX_LARGE_MESG_UUID4    {0x0B, 0xFF, mqttBLECHAR_UUID_MASK }
+
+#define mqttBLECHAR_RX_LARGE_MESG_UUID1    {0x0C, 0xFF, mqttBLECHAR_UUID_MASK }
+#define mqttBLECHAR_RX_LARGE_MESG_UUID2    {0x0D, 0xFF, mqttBLECHAR_UUID_MASK }
+#define mqttBLECHAR_RX_LARGE_MESG_UUID3    {0x0E, 0xFF, mqttBLECHAR_UUID_MASK }
+#define mqttBLECHAR_RX_LARGE_MESG_UUID4    {0x0F, 0xFF, mqttBLECHAR_UUID_MASK }
 
 /**
  * @brief Client Characteristic configuration Descriptor UUID.
@@ -60,11 +74,13 @@
  */
 #define mqttBLECCFG_UUID                  ( 0x2902 )
 
+
+
 /**
  * @brief Number of characteristics, descriptors and included services for MQTT service
  */
-#define mqttBLENUM_CHARS                 ( 5 )
-#define mqttBLENUM_CHAR_DESCRS           ( 2 )
+#define mqttBLENUM_CHARS                 ( 15 )
+#define mqttBLENUM_CHAR_DESCRS           ( 8 )
 #define mqttBLENUM_INCLUDED_SERVICES     ( 0 )
 
 /**
@@ -77,9 +93,30 @@ typedef enum {
   eMQTTBLE_CHAR_TX_MESG,                //!< eMQTTBLETXMessage Characteristic to send notification containing a message to MQTT broker
   eMQTTBLE_CHAR_DESCR_TX_MESG,          //!< eMQTTBLE_CHAR_DESCR_TX_MESG Characteristic descriptor
   eMQTTBLE_CHAR_RX_MESG,                //!< eMQTTBLERXMessage Characteristic to receive a message from MQTT broker
-  eMQTTBLE_CHAR_TX_LARGE_MESG,               //!< eMQTTBLETXLargeMessage Characteristic to send a large message (> BLE MTU Size) to MQTT broker
-  eMQTTBLE_CHAR_DESCR_TX_LARGE_MESG,    //!< eMQTTBLE_CHAR_DESCR_TX_LARGE_MESG Characteristic descripto
-  eMQTTBLE_CHAR_RX_LARGE,                    //!  eMQTTBLERXLargeMessage Characteristic to receive large message (> BLE MTU Size) from MQTT broke
+
+  eMQTTBLE_CHAR_MTU,
+  eMQTTBLE_CHAR_WINDOW,
+  eMQTTBLE_CHAR_TIMEOUT,
+  eMQTTBLE_CHAR_RETRIES,
+
+  eMQTTBLE_CHAR_TX_LARGE_MESG1,               //!< eMQTTBLETXLargeMessage Characteristic to send a large message (> BLE MTU Size) to MQTT broker
+  eMQTTBLE_CHAR_DESCR_TX_LARGE_MESG1,    //!< eMQTTBLE_CHAR_DESCR_TX_LARGE_MESG Characteristic description
+  eMQTTBLE_CHAR_TX_LARGE_MESG2,               //!< eMQTTBLETXLargeMessage Characteristic to send a large message (> BLE MTU Size) to MQTT broker
+  eMQTTBLE_CHAR_DESCR_TX_LARGE_MESG2,    //!< eMQTTBLE_CHAR_DESCR_TX_LARGE_MESG Characteristic description
+  eMQTTBLE_CHAR_TX_LARGE_MESG3,               //!< eMQTTBLETXLargeMessage Characteristic to send a large message (> BLE MTU Size) to MQTT broker
+  eMQTTBLE_CHAR_DESCR_TX_LARGE_MESG3,    //!< eMQTTBLE_CHAR_DESCR_TX_LARGE_MESG Characteristic description
+  eMQTTBLE_CHAR_TX_LARGE_MESG4,               //!< eMQTTBLETXLargeMessage Characteristic to send a large message (> BLE MTU Size) to MQTT broker
+  eMQTTBLE_CHAR_DESCR_TX_LARGE_MESG4,    //!< eMQTTBLE_CHAR_DESCR_TX_LARGE_MESG Characteristic description
+
+  eMQTTBLE_CHAR_RX_LARGE_MESG1,               //!< eMQTTBLETXLargeMessage Characteristic to send a large message (> BLE MTU Size) to MQTT broker
+  eMQTTBLE_CHAR_DESCR_RX_LARGE_MESG1,    //!< eMQTTBLE_CHAR_DESCR_TX_LARGE_MESG Characteristic description
+  eMQTTBLE_CHAR_RX_LARGE_MESG2,               //!< eMQTTBLETXLargeMessage Characteristic to send a large message (> BLE MTU Size) to MQTT broker
+  eMQTTBLE_CHAR_DESCR_RX_LARGE_MESG2,    //!< eMQTTBLE_CHAR_DESCR_TX_LARGE_MESG Characteristic description
+  eMQTTBLE_CHAR_RX_LARGE_MESG3,               //!< eMQTTBLETXLargeMessage Characteristic to send a large message (> BLE MTU Size) to MQTT broker
+  eMQTTBLE_CHAR_DESCR_RX_LARGE_MESG3,    //!< eMQTTBLE_CHAR_DESCR_TX_LARGE_MESG Characteristic description
+  eMQTTBLE_CHAR_RX_LARGE_MESG4,               //!< eMQTTBLETXLargeMessage Characteristic to send a large message (> BLE MTU Size) to MQTT broker
+  eMQTTBLE_CHAR_DESCR_RX_LARGE_MESG4,    //!< eMQTTBLE_CHAR_DESCR_TX_LARGE_MESG Characteristic description
+
   eMQTTBLE_NUMBER                       //!< eMQTTBLEAttributes_t Number of attributes in eMQTT service
 } MQTTBLEAttributes_t;
 
@@ -89,7 +126,14 @@ typedef enum {
 typedef enum
 {
 	eMQTTBLETXMessageDescr = 0, //!< eMQTTBLETXMessageDescr Client Characteristic Configuration Descriptor to enable notification for TXMessage Characteristic
-	eMQTTBLETXLargeMessageDescr //!< eMQTTBLETXLargeMessageDescr Client Characteristic Configuration Descriptor to enable notification for TXLargeMessage Characteristic
+	eMQTTBLETXLargeMessage1Descr, //!< eMQTTBLETXLargeMessageDescr Client Characteristic Configuration Descriptor to enable notification for TXLargeMessage Characteristic
+	eMQTTBLETXLargeMessage2Descr,
+	eMQTTBLETXLargeMessage3Descr,
+	eMQTTBLETXLargeMessage4Descr,
+	eMQTTBLERXLargeMessage1Descr,
+	eMQTTBLERXLargeMessage2Descr,
+	eMQTTBLERXLargeMessage3Descr,
+	eMQTTBLERXLargeMessage4Descr
 } MQTTCharacteristicDescr_t;
 
 /**
@@ -140,13 +184,12 @@ typedef enum
 
 typedef struct MqttBLEConnection
 {
-	StreamBufferHandle_t xSendBuffer;
+    AwsIotLargeObjectTransferReceiveCallback_t xLotCallback;
+    void *pvLoTContext;
+    uint16_t usRecvSessionID;
+    uint16_t usSendSessionID;
 	SemaphoreHandle_t xSendLock;
 	TickType_t xSendTimeout;
-	uint8_t *pRecvBuffer;
-	size_t xRecvBufferLen;
-	size_t xRecvOffset;
-	SemaphoreHandle_t xRecvLock;
 	AwsIotMqttConnection_t* pxMqttConnection;
 } MqttBLEConnection_t;
 
@@ -159,11 +202,12 @@ typedef void* AwsIotMqttBLEConnection_t;
 typedef struct MqttBLEService
 {
 	BTService_t* pxServicePtr;
-	uint16_t usDescrVal[ mqttBLENUM_CHAR_DESCRS ];
+	uint16_t usCCFGEnabled;
 	uint16_t usBLEConnId;
-        bool bIsInit;
+    bool bIsInit;
 	bool bIsEnabled;
 	MqttBLEConnection_t xConnection;
+	AwsIotLargeObjectTransferContext_t xLOTContext;
 } MqttBLEService_t;
 
 

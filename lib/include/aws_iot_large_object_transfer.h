@@ -149,7 +149,7 @@ typedef void( * AwsIotLargeObjectReceiveCallback_t ) (
         const uint16_t usSessionID,
         const uint8_t * pucData,
         size_t xDataLength,
-        BaseType_t xMore );
+        BaseType_t xComplete );
 
 typedef struct AwsIotLargeObjectReceiveSession
 {
@@ -188,7 +188,6 @@ typedef union AwsIotLargeObjectSession
  * @brief Callback invoked on a send or receive session completion.
  */
 typedef void ( *AwsIotLargeObjectSessionCompleteCallback_t )(
-        AwsIotLargeObjectSessionType_t xSessionType,
         uint16_t usSessionID,
         AwsIotLargeObjectTransferError_t xResult );
 
