@@ -188,6 +188,7 @@ typedef struct MqttBLEConnection
     void *pvLoTContext;
     uint16_t usRecvSessionID;
     uint16_t usSendSessionID;
+    uint16_t usNextCharId;
 	SemaphoreHandle_t xSendLock;
 	TickType_t xSendTimeout;
 	AwsIotMqttConnection_t* pxMqttConnection;

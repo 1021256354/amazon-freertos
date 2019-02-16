@@ -1069,12 +1069,11 @@ AwsIotLargeObjectTransferError_t AwsIotLargeObjectTransfer_Resume( AwsIotLargeOb
     return xError;
 }
 
-AwsIotLargeObjectTransferError_t AwsIotLargeObjectTransfer_CloseSession( AwsIotLargeObjectTransferContext_t* pxContext,
+void AwsIotLargeObjectTransfer_CloseSession( AwsIotLargeObjectTransferContext_t* pxContext,
                                                                          AwsIotLargeObjectSessionType_t xType,
                                                                          uint16_t usSessionID )
 {
     uint16_t usIdx;
-    AwsIotLargeObjectTransferError_t xRet = AWS_IOT_LARGE_OBJECT_TRANSFER_SESSION_NOT_FOUND;
     AwsIotLargeObjectSession_t *pxSession;
 
     if( xType == AWS_IOT_LARGE_OBJECT_SESSION_SEND )
@@ -1085,7 +1084,6 @@ AwsIotLargeObjectTransferError_t AwsIotLargeObjectTransfer_CloseSession( AwsIotL
             if( pxSession->xSend.usSessionID == usSessionID )
             {
                 prvCloseSession( ( AwsIotLargeObjectSession_t * ) pxSession, AWS_IOT_LARGE_OBJECT_SESSION_SEND, pdFALSE );
-                xRet = AWS_IOT_LARGE_OBJECT_TRANSFER_SUCCESS;
             }
         }
     }
@@ -1097,12 +1095,9 @@ AwsIotLargeObjectTransferError_t AwsIotLargeObjectTransfer_CloseSession( AwsIotL
              if( pxSession->xRecv.usSessionID == usSessionID )
              {
                  prvCloseSession( ( AwsIotLargeObjectSession_t * ) pxSession, AWS_IOT_LARGE_OBJECT_SESSION_RECIEVE, pdFALSE );
-                 xRet = AWS_IOT_LARGE_OBJECT_TRANSFER_SUCCESS;
              }
          }
     }
-
-    return xRet;
 
 }
 

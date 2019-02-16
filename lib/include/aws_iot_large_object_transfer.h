@@ -241,7 +241,7 @@ AwsIotLargeObjectTransferError_t AwsIotLargeObjectTransfer_Resume( AwsIotLargeOb
  * @brief Aborts a large object transfer session.
  * Aborts an ongoing large object transfer session. Both receiver and sender can abort a large object transfer sesssion.
  */
-AwsIotLargeObjectTransferError_t AwsIotLargeObjectTransfer_CloseSession( AwsIotLargeObjectTransferContext_t* pxContext,
+void AwsIotLargeObjectTransfer_CloseSession( AwsIotLargeObjectTransferContext_t* pxContext,
                                                                   AwsIotLargeObjectSessionType_t xType,
                                                                   uint16_t usSessionID );
 
