@@ -88,10 +88,10 @@ typedef enum AwsIotLargeObjectWindowType
  */
 typedef struct AwsIotLargeObjectTransferParams
 {
-    uint16_t usMTU;                      /** !< usMTU : Maximum size of the packet which can be transmitted over the connection. */
-    uint16_t windowSize;                 /** !< windowSize Number of blocks which can be transferred at once without receiving an acknowledgement. */
-    uint16_t timeoutMilliseconds;        /** !< timeoutMilliseconds Timeout in milliseconds for one window of transfer. */
-    uint16_t numRetransmissions;         /** !< numRetransmissions Number of retransmissions. */
+    uint16_t usWindowSize;                 /** !< usWindowSize Number of blocks which can be transferred at once without receiving an acknowledgment. */
+    uint16_t usWindowIntervalMS;           /** !< usWindowIntervalMS Interval in milliseconds in which one window of blocks are sent. */
+    uint16_t usWindowRetries;              /** !< usWindowRetries Number of times a window is retried before which the session is closed. */
+    uint16_t usMTU;                        /** !< usMTU : Maximum size of the packet which can be transmitted over the connection. */
 } AwsIotLargeObjectTransferParams_t;
 
 
@@ -145,11 +145,6 @@ typedef struct AwsIotLargeObjectSendSession
 
 } AwsIotLargeObjectSendSession_t;
 
-typedef void( * AwsIotLargeObjectReceiveCallback_t ) (
-        const uint16_t usSessionID,
-        const uint8_t * pucData,
-        size_t xDataLength,
-        BaseType_t xComplete );
 
 typedef struct AwsIotLargeObjectReceiveSession
 {
@@ -185,12 +180,21 @@ typedef union AwsIotLargeObjectSession
 
 
 /**
- * @brief Callback invoked on a send or receive session completion.
+ * @brief Callback invoked when a large object send is complete.
  */
-typedef void ( *AwsIotLargeObjectSessionCompleteCallback_t )(
+typedef void ( *AwsIotLargeObjectSendCompleteCallback_t )(
         uint16_t usSessionID,
-        AwsIotLargeObjectTransferError_t xResult );
+        BaseType_t xSuccess );
 
+/**
+ * @brief Callback invoked when a large object is received.
+ */
+typedef void( * AwsIotLargeObjectReceiveCallback_t ) (
+        void *pvConnection,
+        uint16_t usSessionID,
+        const uint8_t * pucData,
+        size_t xDataLength,
+        BaseType_t xComplete );
 
 /**
  * @brief Structure has the underlying context for the large object transfer sessions.
@@ -198,9 +202,8 @@ typedef void ( *AwsIotLargeObjectSessionCompleteCallback_t )(
  */
 typedef struct AwsIotLargeObjectTransferContext
 {
-
     AwsIotLargeObjectTransferNetworkIface_t xNetworkIface;               /**!< xNetworkIface Network interface to use for large object transfer.   */
-    AwsIotLargeObjectSessionCompleteCallback_t xCompletionCallback;      /**!< xCompletionCallback Callback invoked on a large object send/receive completion */
+    AwsIotLargeObjectSendCompleteCallback_t xSendCompleteCallback;      /**!< xSendCompleteCallback Callback to indicate that send for large object is complete. */
     AwsIotLargeObjectReceiveCallback_t xReceiveCallback;                 /**!< xReceiveCallback Callback for streaming received large object to user */
     AwsIotLargeObjectTransferParams_t xParameters;                       /**!< xParameters Parameters used for large object transfer.              */
     uint16_t usNumSendSessions;                                /**!< usNumSendSessions Number of send sessions within the context.       */

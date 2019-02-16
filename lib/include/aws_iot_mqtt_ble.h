@@ -53,8 +53,8 @@
 #define mqttBLECHAR_TX_MESG_UUID          {0x02, 0xFF, mqttBLECHAR_UUID_MASK }
 #define mqttBLECHAR_RX_MESG_UUID	      {0x03, 0xFF, mqttBLECHAR_UUID_MASK }
 
-#define mqttBLECHAR_LARGE_OBJECT_MTU_UUID             {0x04, 0xFF, mqttBLECHAR_UUID_MASK }
-#define mqttBLECHAR_LARGE_OBJECT_WINDOW_UUID          {0x05, 0xFF, mqttBLECHAR_UUID_MASK }
+#define mqttBLECHARmqttBLE_LARGE_OBJECT_MTU_SIZE_UUID             {0x04, 0xFF, mqttBLECHAR_UUID_MASK }
+#define mqttBLECHARmqttBLE_LARGE_OBJECT_WINDOW_SIZE_UUID          {0x05, 0xFF, mqttBLECHAR_UUID_MASK }
 #define mqttBLECHAR_LARGE_OBJECT_TIMEOUT_UUID         {0x06, 0xFF, mqttBLECHAR_UUID_MASK }
 #define mqttBLECHAR_LARGE_OBJECT_RETRIES_UUID         {0x07, 0xFF, mqttBLECHAR_UUID_MASK }
 
@@ -82,6 +82,8 @@
 #define mqttBLENUM_CHARS                 ( 15 )
 #define mqttBLENUM_CHAR_DESCRS           ( 8 )
 #define mqttBLENUM_INCLUDED_SERVICES     ( 0 )
+
+
 
 /**
  * @brief Characteristics used by MQTT Service.
@@ -163,38 +165,40 @@ typedef enum
  * @brief Maximum bytes which can be transferred at a time through the BLE connection.
  */
 #define mqttBLETRANSFER_LEN( mtu )        ( ( mtu ) - 3 )
-/**
- *@brief Size of the buffer used to store outstanding bytes to be send out.
- */
-#define mqttBLETX_BUFFER_SIZE        ( 1024 )
-
-/**
- * @brief Size of the buffer to hold the received message
- *
- */
-#define mqttBLERX_BUFFER_SIZE        ( 1024 )
 
 /**
  *
  * @brief The default timeout in milliseconds for sending a message to the proxy
  */
-#define mqttBLEDEFAULT_SEND_TIMEOUT_MS          ( 2000 )
+#define mqttBLEDEFAULT_SEND_TIMEOUT_MS              ( 2000 )
+
+
+#define mqttBLENUM_LARGE_OBJECT_CHARS                 ( 4 )
+
+#define mqttBLE_LARGE_OBJECT_WINDOW_SIZE              mqttBLENUM_LARGE_OBJECT_CHARS
+
+#define mqttBLE_LARGE_OBJECT_WINDOW_INTERVAL_MS        ( 100 )
+
+#define mqttBLE_LARGE_OBJECT_WINDOW_RETRIES           ( 3 )
+
+#define mqttBLE_LARGE_OBJECT_BLOCK_SIZE               IOT_BLE_PREFERRED_MTU_SIZE
 
 #define AWS_IOT_MQTT_BLE_CONNECTION_INITIALIZER       NULL       /* Initializer for MQTT connection over BLE */
 
+typedef void* AwsIotMqttBLEConnection_t;
+
 typedef struct MqttBLEConnection
 {
-    AwsIotLargeObjectTransferReceiveCallback_t xLotCallback;
-    void *pvLoTContext;
-    uint16_t usRecvSessionID;
-    uint16_t usSendSessionID;
+    AwsIotLargeObjectTransferContext_t xLOTContext;
+    AwsIotLargeObjectTransferReceiveCallback_t xLOTReceiveCallback;
+    void *pvLOTReceiveContext;
+    uint16_t usLOTSendUUID;
+    SemaphoreHandle_t xLOTSendLock;
     uint16_t usNextCharId;
-	SemaphoreHandle_t xSendLock;
-	TickType_t xSendTimeout;
-	AwsIotMqttConnection_t* pxMqttConnection;
-} MqttBLEConnection_t;
+    TickType_t xSendTimeout;
+    AwsIotMqttConnection_t* pxMqttConnection;
 
-typedef void* AwsIotMqttBLEConnection_t;
+} MqttBLEConnection_t;
 
 
 /**
@@ -208,7 +212,6 @@ typedef struct MqttBLEService
     bool bIsInit;
 	bool bIsEnabled;
 	MqttBLEConnection_t xConnection;
-	AwsIotLargeObjectTransferContext_t xLOTContext;
 } MqttBLEService_t;
 
 

@@ -56,15 +56,15 @@
     .ucType  = eBTuuidType128\
 }
 
-#define mqttBLECHAR_LARGE_OBJECT_MTU_UUID_TYPE \
+#define mqttBLECHARmqttBLE_LARGE_OBJECT_MTU_SIZE_UUID_TYPE \
 {\
-    .uu.uu128 = mqttBLECHAR_LARGE_OBJECT_MTU_UUID,\
+    .uu.uu128 = mqttBLECHARmqttBLE_LARGE_OBJECT_MTU_SIZE_UUID,\
     .ucType  = eBTuuidType128\
 }
 
-#define mqttBLECHAR_LARGE_OBJECT_WINDOW_UUID_TYPE \
+#define mqttBLECHARmqttBLE_LARGE_OBJECT_WINDOW_SIZE_UUID_TYPE \
 {\
-    .uu.uu128 = mqttBLECHAR_LARGE_OBJECT_WINDOW_UUID,\
+    .uu.uu128 = mqttBLECHARmqttBLE_LARGE_OBJECT_WINDOW_SIZE_UUID,\
     .ucType  = eBTuuidType128\
 }
 
@@ -141,10 +141,6 @@
     .ucType   = eBTuuidType128\
 }
 
-#define _LARGE_OBJECT_NUM_SEND_RETRIES   ( 3 )
-#define _LARGE_OBJECT_WINDOW             ( 4 )
-#define _LARGE_OBJECT_TIMEOUT_MS         ( 1000 )
-#define _LARGE_OBJECT_MTU                IOT_BLE_PREFERRED_MTU_SIZE
 
 static uint16_t pusHandlesBuffer[mqttBLEMAX_SVC_INSTANCES][eMQTTBLE_NUMBER];
 
@@ -200,7 +196,7 @@ static const BTAttribute_t pxAttributeTable[] = {
              .xAttributeType = eBTDbCharacteristic,
              .xCharacteristic =
              {
-                     .xUuid = mqttBLECHAR_LARGE_OBJECT_MTU_UUID_TYPE,
+                     .xUuid = mqttBLECHARmqttBLE_LARGE_OBJECT_MTU_SIZE_UUID_TYPE,
                      .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
                      .xProperties = ( eBTPropRead  )
              }
@@ -209,7 +205,7 @@ static const BTAttribute_t pxAttributeTable[] = {
              .xAttributeType = eBTDbCharacteristic,
              .xCharacteristic =
              {
-                     .xUuid = mqttBLECHAR_LARGE_OBJECT_WINDOW_UUID_TYPE,
+                     .xUuid = mqttBLECHARmqttBLE_LARGE_OBJECT_WINDOW_SIZE_UUID_TYPE,
                      .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
                      .xProperties = ( eBTPropRead  )
              }
@@ -426,10 +422,10 @@ void vClientCharCfgDescrCallback( IotBleAttributeEvent_t * pEventParam );
 void vToggleMQTTService( IotBleAttributeEvent_t * pEventParam );
 
 
-static void vLargeObjectMTUCharCallback( IotBleAttributeEvent_t * pEventParam );
-static void vLargeObjectWindowCharCallback( IotBleAttributeEvent_t * pEventParam );
-static void vLargeObjectRetriesCharCallback( IotBleAttributeEvent_t * pEventParam );
-static void vLargeObjectTimeoutCharCallback( IotBleAttributeEvent_t * pEventParam );
+static void vLOTMTUCharCallback( IotBleAttributeEvent_t * pEventParam );
+static void vLOTWindowCharCallback( IotBleAttributeEvent_t * pEventParam );
+static void vLOTRetriesCharCallback( IotBleAttributeEvent_t * pEventParam );
+static void vLOTTimeoutCharCallback( IotBleAttributeEvent_t * pEventParam );
 
 /*
  * @brief Resets the send and receive buffer for the given MQTT Service.
@@ -455,18 +451,19 @@ static void vMTUChangedCallback( uint16_t connId,
                                  uint16_t usMtu );
 
 
-static void vLargeObjectReceiveCallback (
-        const uint16_t usSessionID,
+static void vLOTReceiveCallback (
+        void *pvConnection,
+        uint16_t usSessionID,
         const uint8_t * pucData,
         size_t xDataLength,
         BaseType_t xComplete );
 
-static size_t vLargeObjectSendBlock(
+static size_t vLOTSendBlock(
        void * pvConnection,
        const void * const pvMessage ,
        size_t xLength );
 
-static int32_t vLargeObjectSetNetworkReceiveCallback (
+static int32_t vLOTSetNetworkReceiveCallback (
            void * pvConnection,
            void* pvContext,
            AwsIotLargeObjectTransferReceiveCallback_t  xCallback);
@@ -484,10 +481,10 @@ static const IotBleAttributeEventCallback_t pxCallBackArray[eMQTTBLE_NUMBER] =
   vTXMesgCharCallback,
   vClientCharCfgDescrCallback,
   vRXMesgCharCallback,
-  vLargeObjectMTUCharCallback,
-  vLargeObjectWindowCharCallback,
-  vLargeObjectTimeoutCharCallback,
-  vLargeObjectRetriesCharCallback,
+  vLOTMTUCharCallback,
+  vLOTWindowCharCallback,
+  vLOTTimeoutCharCallback,
+  vLOTRetriesCharCallback,
   vTXLargeMesgCharCallback,
   vClientCharCfgDescrCallback,
   vTXLargeMesgCharCallback,
@@ -584,20 +581,14 @@ static BaseType_t prvInitServiceInstance( BTService_t * pxService )
 
 void prvCloseSessions( MqttBLEService_t* pxService )
 {
-    if( pxService->xConnection.usSendSessionID != 0 )
+    if( pxService->xConnection.usLOTSendUUID != 0 )
     {
-        AwsIotLargeObjectTransfer_CloseSession( &pxService->xLOTContext,
+        AwsIotLargeObjectTransfer_CloseSession( &pxService->xConnection.xLOTContext,
                                                 AWS_IOT_LARGE_OBJECT_SESSION_SEND,
-                                                pxService->xConnection.usSendSessionID );
-        pxService->xConnection.usSendSessionID = 0;
+                                                pxService->xConnection.usLOTSendUUID );
+        pxService->xConnection.usLOTSendUUID = 0;
     }
 
-    if( pxService->xConnection.usRecvSessionID != 0 )
-    {
-        AwsIotLargeObjectTransfer_CloseSession( &pxService->xLOTContext,
-                                                AWS_IOT_LARGE_OBJECT_SESSION_RECIEVE,
-                                                pxService->xConnection.usRecvSessionID );
-    }
 }
 
 /*-----------------------------------------------------------*/
@@ -723,8 +714,8 @@ void vTXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
           if(( pxService->xConnection.pxMqttConnection != NULL ) &&
                   ( pxService->bIsEnabled ) )
           {
-              pxService->xConnection.xLotCallback(
-                      pxService->xConnection.pvLoTContext,
+              pxService->xConnection.xLOTReceiveCallback(
+                      pxService->xConnection.pvLOTReceiveContext,
                       pxWriteParam->pValue,
                       pxWriteParam->length );
 
@@ -764,8 +755,8 @@ void vRXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
         if(( pxService->xConnection.pxMqttConnection != NULL ) &&
 				( pxService->bIsEnabled ) )
         {
-        	pxService->xConnection.xLotCallback(
-        	        pxService->xConnection.pvLoTContext,
+        	pxService->xConnection.xLOTReceiveCallback(
+        	        pxService->xConnection.pvLOTReceiveContext,
         	        pxWriteParam->pValue,
         	        pxWriteParam->length );
 
@@ -890,7 +881,7 @@ void vClientCharCfgDescrCallback( IotBleAttributeEvent_t * pEventParam )
 }
 
 
-static void vLargeObjectMTUCharCallback( IotBleAttributeEvent_t * pEventParam )
+static void vLOTMTUCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
     IotBleAttributeData_t xAttrData = { 0 };
     IotBleEventResponse_t xResp;
@@ -909,13 +900,13 @@ static void vLargeObjectMTUCharCallback( IotBleAttributeEvent_t * pEventParam )
         xResp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
         xResp.eventStatus = eBTStatusSuccess;
         xResp.pAttrData->pData = ( uint8_t * ) cMesg;
-        xResp.pAttrData->size = snprintf( cMesg, sizeof( cMesg ), "%d", _LARGE_OBJECT_MTU );
+        xResp.pAttrData->size = snprintf( cMesg, sizeof( cMesg ), "%d", mqttBLE_LARGE_OBJECT_BLOCK_SIZE );
         xResp.attrDataOffset = 0;
         IotBle_SendResponse( &xResp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
     }
 }
 
-static void vLargeObjectWindowCharCallback( IotBleAttributeEvent_t * pEventParam )
+static void vLOTWindowCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
     IotBleAttributeData_t xAttrData = { 0 };
     IotBleEventResponse_t xResp;
@@ -934,14 +925,14 @@ static void vLargeObjectWindowCharCallback( IotBleAttributeEvent_t * pEventParam
         xResp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
         xResp.eventStatus = eBTStatusSuccess;
         xResp.pAttrData->pData = ( uint8_t * ) cMesg;
-        xResp.pAttrData->size = snprintf( cMesg, sizeof( cMesg ), "%d", _LARGE_OBJECT_WINDOW );
+        xResp.pAttrData->size = snprintf( cMesg, sizeof( cMesg ), "%d", mqttBLE_LARGE_OBJECT_WINDOW_SIZE );
         xResp.attrDataOffset = 0;
         IotBle_SendResponse( &xResp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
     }
 }
 
 
-static void vLargeObjectTimeoutCharCallback( IotBleAttributeEvent_t * pEventParam )
+static void vLOTTimeoutCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
     IotBleAttributeData_t xAttrData = { 0 };
     IotBleEventResponse_t xResp;
@@ -960,13 +951,13 @@ static void vLargeObjectTimeoutCharCallback( IotBleAttributeEvent_t * pEventPara
         xResp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
         xResp.eventStatus = eBTStatusSuccess;
         xResp.pAttrData->pData = ( uint8_t * ) cMesg;
-        xResp.pAttrData->size = snprintf( cMesg, sizeof( cMesg ), "%d", _LARGE_OBJECT_TIMEOUT_MS );
+        xResp.pAttrData->size = snprintf( cMesg, sizeof( cMesg ), "%d", mqttBLE_LARGE_OBJECT_WINDOW_INTERVAL_MS );
         xResp.attrDataOffset = 0;
         IotBle_SendResponse( &xResp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
     }
 }
 
-static void vLargeObjectRetriesCharCallback( IotBleAttributeEvent_t * pEventParam )
+static void vLOTRetriesCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
     IotBleAttributeData_t xAttrData = { 0 };
     IotBleEventResponse_t xResp;
@@ -985,7 +976,7 @@ static void vLargeObjectRetriesCharCallback( IotBleAttributeEvent_t * pEventPara
         xResp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
         xResp.eventStatus = eBTStatusSuccess;
         xResp.pAttrData->pData = ( uint8_t * ) cMesg;
-        xResp.pAttrData->size = snprintf( cMesg, sizeof( cMesg ), "%d", _LARGE_OBJECT_NUM_SEND_RETRIES );
+        xResp.pAttrData->size = snprintf( cMesg, sizeof( cMesg ), "%d", mqttBLE_LARGE_OBJECT_WINDOW_RETRIES );
         xResp.attrDataOffset = 0;
         IotBle_SendResponse( &xResp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
     }
@@ -1035,36 +1026,29 @@ static void vMTUChangedCallback( uint16_t connId,
 
 }
 
-static void vLargeObjectReceiveCallback (
-        const uint16_t usSessionID,
+static void vLOTReceiveCallback (
+        void *pvConnection,
+        uint16_t usSessionID,
         const uint8_t * pucData,
         size_t xDataLength,
         BaseType_t xComplete )
 {
-    uint8_t ucId;
-    MqttBLEService_t* pxService;
+    MqttBLEService_t* pxService = ( MqttBLEService_t* ) pvConnection;
 
     configASSERT( xComplete == pdTRUE );
 
-    for( ucId = 0; ucId < mqttBLEMAX_SVC_INSTANCES; ucId++ )
-    {
-        pxService = &xMqttBLEServices[ ucId ];
-        if( pxService->xConnection.usRecvSessionID == usSessionID )
-        {
-            ( void ) AwsIotMqtt_ReceiveCallback(
-                    pxService->xConnection.pxMqttConnection,
-                    pucData,
-                    0,
-                    xDataLength,
-                    NULL );
-            break;
-        }
-    }
+    ( void ) AwsIotMqtt_ReceiveCallback(
+            pxService->xConnection.pxMqttConnection,
+            pucData,
+            0,
+            xDataLength,
+            NULL );
+
 }
 
 
 
-static size_t vLargeObjectSendBlock(
+static size_t vLOTSendBlock(
        void * pvConnection,
        const void * const pvMessage ,
        size_t xLength )
@@ -1081,20 +1065,19 @@ static size_t vLargeObjectSendBlock(
     return xSent;
 }
 
-static int32_t vLargeObjectSetNetworkReceiveCallback (
+static int32_t vLOTSetNetworkReceiveCallback (
            void * pvConnection,
            void* pvContext,
            AwsIotLargeObjectTransferReceiveCallback_t  xCallback)
 {
     MqttBLEService_t* pxService = (MqttBLEService_t* ) pvConnection;
-    pxService->xConnection.pvLoTContext = pvContext;
-    pxService->xConnection.xLotCallback = xCallback;
+    pxService->xConnection.pvLOTReceiveContext = pvContext;
+    pxService->xConnection.xLOTReceiveCallback = xCallback;
 
     return pdTRUE;
 }
 
-static void vLargeObjectSendCallback( uint16_t usSessionID,
-                                      AwsIotLargeObjectTransferError_t xResult )
+static void vLOTSendCallback( uint16_t usSessionID, BaseType_t xResult )
 {
     uint8_t ucId;
     MqttBLEService_t* pxService;
@@ -1102,9 +1085,10 @@ static void vLargeObjectSendCallback( uint16_t usSessionID,
     for( ucId = 0; ucId < mqttBLEMAX_SVC_INSTANCES; ucId++ )
     {
         pxService = &xMqttBLEServices[ ucId ];
-        if( pxService->xConnection.usSendSessionID == usSessionID )
+        if( pxService->xConnection.usLOTSendUUID == usSessionID )
         {
-            xSemaphoreGive( pxService->xConnection.xSendLock );
+            xSemaphoreGive( pxService->xConnection.xLOTSendLock );
+            pxService->xConnection.usLOTSendUUID = 0;
             break;
         }
     }
@@ -1162,10 +1146,10 @@ BaseType_t AwsIotMqttBLE_Init( void )
         if( xRet == pdPASS )
         {
             pxService->xConnection.xSendTimeout = pdMS_TO_TICKS( mqttBLEDEFAULT_SEND_TIMEOUT_MS );
-            pxService->xConnection.xSendLock = xSemaphoreCreateBinary();
-            if( pxService->xConnection.xSendLock != NULL )
+            pxService->xConnection.xLOTSendLock = xSemaphoreCreateBinary();
+            if( pxService->xConnection.xLOTSendLock != NULL )
             {
-                ( void ) xSemaphoreGive( pxService->xConnection.xSendLock );
+                ( void ) xSemaphoreGive( pxService->xConnection.xLOTSendLock );
             }
             else
             {
@@ -1175,29 +1159,30 @@ BaseType_t AwsIotMqttBLE_Init( void )
 
         if( xRet == pdPASS )
         {
-            pxService->xLOTContext.xCompletionCallback = vLargeObjectSendCallback;
-            pxService->xLOTContext.xReceiveCallback = vLargeObjectReceiveCallback;
-            pxService->xLOTContext.xNetworkIface.pvConnection = pxService;
-            pxService->xLOTContext.xNetworkIface.send = vLargeObjectSendBlock;
-            pxService->xLOTContext.xNetworkIface.setNetworkReceiveCallback = vLargeObjectSetNetworkReceiveCallback;
-            pxService->xLOTContext.xParameters.numRetransmissions = _LARGE_OBJECT_NUM_SEND_RETRIES;
-            pxService->xLOTContext.xParameters.timeoutMilliseconds = _LARGE_OBJECT_TIMEOUT_MS;
-            pxService->xLOTContext.xParameters.usMTU = _LARGE_OBJECT_MTU;
-            pxService->xLOTContext.xParameters.windowSize = _LARGE_OBJECT_WINDOW;
+            pxService->xConnection.xLOTContext.xSendCompleteCallback = vLOTSendCallback;
+            pxService->xConnection.xLOTContext.xReceiveCallback = vLOTReceiveCallback;
+            pxService->xConnection.xLOTContext.xNetworkIface.pvConnection = pxService;
+            pxService->xConnection.xLOTContext.xNetworkIface.send = vLOTSendBlock;
+            pxService->xConnection.xLOTContext.xNetworkIface.setNetworkReceiveCallback = vLOTSetNetworkReceiveCallback;
+            pxService->xConnection.xLOTContext.xParameters.usWindowSize = mqttBLE_LARGE_OBJECT_WINDOW_SIZE;
+            pxService->xConnection.xLOTContext.xParameters.usWindowIntervalMS = mqttBLE_LARGE_OBJECT_WINDOW_INTERVAL_MS;
+            pxService->xConnection.xLOTContext.xParameters.usWindowRetries = mqttBLE_LARGE_OBJECT_WINDOW_RETRIES;
+            pxService->xConnection.xLOTContext.xParameters.usMTU = mqttBLE_LARGE_OBJECT_BLOCK_SIZE;
 
-            xError = AwsIotLargeObjectTransfer_Init( &pxService->xLOTContext, 1, 1 );
+            xError = AwsIotLargeObjectTransfer_Init( &pxService->xConnection.xLOTContext, 1, 1 );
             if( xError != AWS_IOT_LARGE_OBJECT_TRANSFER_SUCCESS )
             {
                 configPRINTF(( "Failed to initialize large object transfer context " ));
+                xRet = pdFALSE;
             }
         }
 
 
         if( xRet == pdFALSE )
         {
-            if( pxService->xConnection.xSendLock != NULL )
+            if( pxService->xConnection.xLOTSendLock != NULL )
             {
-                vSemaphoreDelete( pxService->xConnection.xSendLock );
+                vSemaphoreDelete( pxService->xConnection.xLOTSendLock );
             }
 
             break;
@@ -1291,21 +1276,21 @@ size_t AwsIotMqttBLE_Send( void* pvConnection, const void * const pvMessage, siz
         }
         else
         {
-            if( xSemaphoreTake( pxService->xConnection.xSendLock, xRemainingTime ) == pdPASS )
+            if( xSemaphoreTake( pxService->xConnection.xLOTSendLock, xRemainingTime ) == pdPASS )
             {
                 xError = AwsIotLargeObjectTransfer_Send(
-                        &pxService->xLOTContext,
+                        &pxService->xConnection.xLOTContext,
                         ( const uint8_t * ) pvMessage,
                         xMessageLength,
-                        &pxService->xConnection.usSendSessionID );
+                        &pxService->xConnection.usLOTSendUUID );
 
                 if( xError == AWS_IOT_LARGE_OBJECT_TRANSFER_SUCCESS )
                 {
                     ( void ) xTaskCheckForTimeOut( &xTimeout, &xRemainingTime );
-                    if( xSemaphoreTake( pxService->xConnection.xSendLock, xRemainingTime ) == pdPASS )
+                    if( xSemaphoreTake( pxService->xConnection.xLOTSendLock, xRemainingTime ) == pdPASS )
                     {
                         xSent = xMessageLength;
-                        xSemaphoreGive( pxService->xConnection.xSendLock );
+                        xSemaphoreGive( pxService->xConnection.xLOTSendLock );
                     }
                     else
                     {
@@ -1315,7 +1300,7 @@ size_t AwsIotMqttBLE_Send( void* pvConnection, const void * const pvMessage, siz
                 else
                 {
                     configPRINTF(( "Failed to complete large object send for MQTT service, error = %d.\r\n", xError ));
-                    xSemaphoreGive( pxService->xConnection.xSendLock );
+                    xSemaphoreGive( pxService->xConnection.xLOTSendLock );
                 }
             }
         }
