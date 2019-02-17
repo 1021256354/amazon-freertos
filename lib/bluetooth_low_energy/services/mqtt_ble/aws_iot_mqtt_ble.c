@@ -876,7 +876,7 @@ static void vLOTBlockSizeCharCallback( IotBleAttributeEvent_t * pEventParam )
         xResp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
         xResp.eventStatus = eBTStatusSuccess;
         xResp.pAttrData->pData = ( uint8_t * ) cMesg;
-        xResp.pAttrData->size = snprintf( cMesg, sizeof( cMesg ), "%d", mqttBLE_LARGE_OBJECT_BLOCK_SIZE );
+        xResp.pAttrData->size = snprintf( cMesg, sizeof( cMesg ), "%d", mqttBLE_LOT_BLOCK_SIZE );
         xResp.attrDataOffset = 0;
         IotBle_SendResponse( &xResp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
     }
@@ -901,7 +901,7 @@ static void vLOTWindowSizeCharCallback( IotBleAttributeEvent_t * pEventParam )
         xResp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
         xResp.eventStatus = eBTStatusSuccess;
         xResp.pAttrData->pData = ( uint8_t * ) cMesg;
-        xResp.pAttrData->size = snprintf( cMesg, sizeof( cMesg ), "%d", mqttBLE_LARGE_OBJECT_WINDOW_SIZE );
+        xResp.pAttrData->size = snprintf( cMesg, sizeof( cMesg ), "%d", mqttBLE_LOT_WINDOW_SIZE );
         xResp.attrDataOffset = 0;
         IotBle_SendResponse( &xResp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
     }
@@ -927,7 +927,7 @@ static void vLOTWindowIntervalCharCallback( IotBleAttributeEvent_t * pEventParam
         xResp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
         xResp.eventStatus = eBTStatusSuccess;
         xResp.pAttrData->pData = ( uint8_t * ) cMesg;
-        xResp.pAttrData->size = snprintf( cMesg, sizeof( cMesg ), "%d", mqttBLE_LARGE_OBJECT_WINDOW_INTERVAL_MS );
+        xResp.pAttrData->size = snprintf( cMesg, sizeof( cMesg ), "%d", mqttBLE_LOT_WINDOW_INTERVAL_MS );
         xResp.attrDataOffset = 0;
         IotBle_SendResponse( &xResp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
     }
@@ -952,7 +952,7 @@ static void vLOTWindowRetriesCharCallback( IotBleAttributeEvent_t * pEventParam 
         xResp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
         xResp.eventStatus = eBTStatusSuccess;
         xResp.pAttrData->pData = ( uint8_t * ) cMesg;
-        xResp.pAttrData->size = snprintf( cMesg, sizeof( cMesg ), "%d", mqttBLE_LARGE_OBJECT_WINDOW_RETRIES );
+        xResp.pAttrData->size = snprintf( cMesg, sizeof( cMesg ), "%d", mqttBLE_LOT_WINDOW_RETRIES );
         xResp.attrDataOffset = 0;
         IotBle_SendResponse( &xResp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
     }
@@ -1021,8 +1021,6 @@ static void vLOTReceiveCallback (
             NULL );
 
 }
-
-
 
 static size_t vLOTSendBlock(
        void * pvConnection,
@@ -1105,7 +1103,7 @@ BaseType_t AwsIotMqttBLE_Init( void )
         pxService->pxServicePtr = &xBLEServices[ucId];
         pxService->pxServicePtr->pusHandlesBuffer = pusHandlesBuffer[ucId];
         pxService->pxServicePtr->ucInstId = ucId;
-        pxService->pxServicePtr->xNumberOfAttributes = eMQTTBLE_NUMBER;
+        pxService->pxServicePtr->xNumberOfAttributes = eMQTTBLE_NUM_ATTRIBUTES;
         pxService->pxServicePtr->pxBLEAttributes = (BTAttribute_t *)pxAttributeTable;
 
         xRet = prvInitServiceInstance( pxService->pxServicePtr );
