@@ -35,8 +35,14 @@
 /*
  * MQTT Broker endpoint.
  */
-static const char clientcredentialMQTT_BROKER_ENDPOINT[] = "Paste AWS IoT Broker endpoint here.";
+#define clientcredentialMQTT_BROKER_ENDPOINT_ADDRESS  NULL
+#if ( clientcredentialMQTT_BROKER_ENDPOINT_ADDRESS == NULL)
+    #warning clientcredentialMQTT_BROKER_ENDPOINT_ADDRESS is undefined.
+#endif
 
+/* The constant above is set to a const char * pointer defined in aws_dev_mode_key_provisioning.c,
+ * and externed here for use in C files */
+extern const char clientcredentialMQTT_BROKER_ENDPOINT[];
 
 /* Use of a "define" and not a "static const" here to be able to
  * use pre-compile concatenation on the string. */

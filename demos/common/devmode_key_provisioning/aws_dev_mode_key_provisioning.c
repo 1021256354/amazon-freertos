@@ -65,6 +65,7 @@
 const char clientcredentialCLIENT_CERTIFICATE_PEM[] = keyCLIENT_CERTIFICATE_PEM;
 const char * clientcredentialJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM = keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
 const char clientcredentialCLIENT_PRIVATE_KEY_PEM[] = keyCLIENT_PRIVATE_KEY_PEM;
+const char clientcredentialMQTT_BROKER_ENDPOINT[] = clientcredentialMQTT_BROKER_ENDPOINT_ADDRESS;
 
 /*
  * Length of device certificate included from aws_clientcredential_keys.h .
