@@ -34,9 +34,11 @@
 
 /*
  * MQTT Broker endpoint.
+ * 
+ * Replace this 0 with the AWS IoT MQTT Endpoint string, i.e. "abcdefghijklmn-ats.iot.us-west-2.amazonaws.com".
  */
-#define clientcredentialMQTT_BROKER_ENDPOINT_ADDRESS  NULL
-#if ( clientcredentialMQTT_BROKER_ENDPOINT_ADDRESS == NULL)
+#define clientcredentialMQTT_BROKER_ENDPOINT_ADDRESS  0 
+#if ( clientcredentialMQTT_BROKER_ENDPOINT_ADDRESS == 0 )
     #warning clientcredentialMQTT_BROKER_ENDPOINT_ADDRESS is undefined.
 #endif
 
