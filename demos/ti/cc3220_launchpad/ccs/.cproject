@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+<?fileVersion 4.0.0?>
+<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule configRelations="2" moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.362742304">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.362742304" moduleId="org.eclipse.cdt.core.settings" name="Debug">
@@ -39,25 +40,24 @@
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.CODE_STATE.995647985" name="Designate code state, 16-bit (thumb) or 32-bit (--code_state)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.CODE_STATE" value="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.CODE_STATE.16" valueType="enumerated"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.ABI.1465385469" name="Application binary interface. (--abi)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.ABI" value="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.ABI.eabi" valueType="enumerated"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.FLOAT_SUPPORT.554673149" name="Specify floating point support (--float_support)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.FLOAT_SUPPORT" value="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.FLOAT_SUPPORT.vfplib" valueType="enumerated"/>
-								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.LITTLE_ENDIAN.2031715668" name="Little endian code [See 'General' page to edit] (--little_endian, -me)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.LITTLE_ENDIAN" value="true" valueType="boolean"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.LITTLE_ENDIAN.2031715668" name="Little endian code [See &apos;General&apos; page to edit] (--little_endian, -me)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.LITTLE_ENDIAN" value="true" valueType="boolean"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.INCLUDE_PATH.1680333660" name="Add dir to #include search path (--include_path, -I)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.INCLUDE_PATH" valueType="includePath">
-									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/include/FreeRTOS_POSIX"/>
-									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/FreeRTOS-Plus-POSIX/include"/>
-									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/FreeRTOS-Plus-POSIX/include/portable/ti/cc3220_launchpad"/>
-									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source"/>
 									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
 									<listOptionValue builtIn="false" value="${PROJECT_ROOT}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/config_files}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/lib/aws/include}"/>
-									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/ota/portable/ti/cc3220_launchpad"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/lib/aws/include/private}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/application_code/ti_code}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/application_code/common_demos/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/lib/aws/FreeRTOS/portable/CCS/ARM_CM3}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/lib/third_party/jsmn}"/>
-									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/pkcs11"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/lib/third_party/tinycbor}"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/FreeRTOS/portable/CCS/ARM_CM3"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/demos/ti/cc3220_launchpad/common/config_files"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/demos/ti/cc3220_launchpad/common/application_code/ti_code"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/demos/common/include"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/FreeRTOS-Plus-POSIX/include/portable/ti/cc3220_launchpad"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/include"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/include/private"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/include/FreeRTOS_POSIX"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/FreeRTOS-Plus-POSIX/include"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/tests/common/mqtt/access"/>
 									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mbedtls/include"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/jsmn"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/tinycbor"/>
 									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/pkcs11"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEBUGGING_MODEL.902230565" name="Debugging model" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEBUGGING_MODEL" useByScannerDiscovery="false" value="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEBUGGING_MODEL.SYMDEBUG__DWARF" valueType="enumerated"/>
