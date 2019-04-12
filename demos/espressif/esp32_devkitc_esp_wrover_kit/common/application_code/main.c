@@ -66,6 +66,11 @@
 #include "iot_ble_numericComparison.h"
 #endif
 
+#ifdef ENABLE_COMBINED_DEMO
+#include "iot_common.h"
+#include "iot_mqtt.h"
+#endif
+
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 32 )
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 4 )
@@ -90,6 +95,12 @@ static void spp_uart_init(void);
 #endif
 
 /*-----------------------------------------------------------*/
+
+#ifdef ENABLE_COMBINED_DEMO
+extern void vStartCombinedDemo( void );
+#endif
+
+
 
 /**
  * @brief Application runtime entry point.
@@ -121,9 +132,55 @@ int app_main( void )
         	}
         }
 #endif
+
+#ifdef ENABLE_COMBINED_DEMO
+        
+        if( IotCommon_Init() == false )
+        {
+            configPRINTF(("Failed to initialize the common libraries.\n "));
+            while (1)
+            {
+            }
+        }
+
+        if( AwsIotNetworkManager_Init() != pdPASS )
+        {
+            configPRINTF(("Failed to initialize the network manager.\n "));
+            while (1)
+            {
+            }
+        }
+
+        if( AwsIotNetworkManager_EnableNetwork( configENABLED_NETWORKS ) !=  configENABLED_NETWORKS )
+        {
+            configPRINTF(("Failed to enable all the networks %08x\n ", configENABLED_NETWORKS));
+            while (1)
+            {
+            }
+        }
+
+        if( IotMqtt_Init() != IOT_MQTT_SUCCESS )
+        {
+            configPRINTF(("Failed to initialize MQTT library.\n "));
+            while (1)
+            {
+            }
+        }
+        
+        vStartCombinedDemo();
+
+        while( true )
+        {
+            configPRINTF(( "Available Heap Space: %d\n", esp_get_free_heap_size() ));
+            vTaskDelay(3 * pdMS_TO_TICKS(1000UL));
+        }
+#else
         /* Run all demos. */
         DEMO_RUNNER_RunDemos();
+#endif
+
     }
+
 
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the WiFi initialization, is performed in the RTOS daemon task

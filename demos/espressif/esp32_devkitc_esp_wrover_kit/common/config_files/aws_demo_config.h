@@ -65,6 +65,23 @@
 #define democonfigMQTT_SUB_PUB_TASK_PRIORITY        ( tskIDLE_PRIORITY + 5 )
 
 
+/* Combined demo task example parameters. */
+#define democonfigMQTT_PUB_TASK_STACK_SIZE               ( 6 * configMINIMAL_STACK_SIZE )
+#define democonfigMQTT_PUB_TASK_PRIORITY                 ( tskIDLE_PRIORITY )
+
+/* Combined demo task example parameters. */
+#define democonfigCOMBINED_OTA_TASK_STACK_SIZE      ( 3 * configMINIMAL_STACK_SIZE )
+#define democonfigCOMBINED_OTA_TASK_PRIORITY        ( tskIDLE_PRIORITY )
+
+/* Combined demo task example parameters. */
+#define democonfigBLE_BUTTON_TASK_STACK_SIZE        ( 3 * configMINIMAL_STACK_SIZE )
+#define democonfigBLE_BUTTON_TASK_PRIORITY          ( tskIDLE_PRIORITY )
+
+/* Combined demo task example parameters. */
+#define democonfigPRODUCER_TASK_STACK_SIZE          ( 3 * configMINIMAL_STACK_SIZE )
+#define democonfigPRODUCER_TASK_PRIORITY            ( tskIDLE_PRIORITY )
+
+
 /* Timeout used when performing MQTT operations that do not need extra time
  * to perform a TLS negotiation. */
 #define democonfigMQTT_TIMEOUT                         pdMS_TO_TICKS( 3000 )

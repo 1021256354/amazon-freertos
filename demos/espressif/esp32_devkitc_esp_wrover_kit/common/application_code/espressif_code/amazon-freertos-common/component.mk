@@ -50,12 +50,12 @@ COMPONENT_SRCDIRS += ../.. \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/defender \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/mqtt \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/mqtt_v4 \
-    $(AMAZON_FREERTOS_DEMOS_DIR)/common/mqtt_v4/network/bluetooth \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/greengrass_connectivity \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/tcp \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/ota \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/ble \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/network_manager \
+    $(AMAZON_FREERTOS_DEMOS_DIR)/common/combined \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/wifi_provisioning
 
 COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_DEMOS_DIR)/common/include
