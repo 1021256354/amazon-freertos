@@ -510,7 +510,7 @@ static BaseType_t _deserializeListNetworkRequest( uint8_t * pData, size_t length
             {
                 
                     configPRINTF(( "WARN: Max Networks (%d) exceeds configured Max networks (%d). Caping max networks to %d\n",
-                        value.value.signedInt,
+                        (uint16_t)value.value.signedInt,
                         IOT_BLE_MAX_NETWORK,
                         IOT_BLE_MAX_NETWORK ));
                 pListNetworkRequest->maxNetworks = IOT_BLE_MAX_NETWORK;
