@@ -303,6 +303,10 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
     if( xESPstatus == ESP_OK )
     {
         xESPstatus = esp_ble_gap_register_callback( prvGAPeventHandler );
+    if( xESPstatus != ESP_OK )
+    {
+    	configPRINTF(("1\n"));
+    }
     }
 
    /* Default initialization for ESP32 */
@@ -310,11 +314,18 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
     {
         xAuthReq = prvConvertPropertiesToESPAuth(xProperties.bBondable);
         xESPstatus = esp_ble_gap_set_security_param( ESP_BLE_SM_AUTHEN_REQ_MODE, &xAuthReq, sizeof( uint8_t ) );
-
+        if( xESPstatus != ESP_OK )
+        {
+        	configPRINTF(("2\n"));
+        }
         if( xESPstatus == ESP_OK )
         {
         	xAuthOption = ESP_BLE_ONLY_ACCEPT_SPECIFIED_AUTH_ENABLE;
         	xESPstatus = esp_ble_gap_set_security_param(ESP_BLE_SM_ONLY_ACCEPT_SPECIFIED_SEC_AUTH, &xAuthOption, sizeof(uint8_t));
+            if( xESPstatus != ESP_OK )
+            {
+            	configPRINTF(("3\n"));
+            }
         }
     }
 
@@ -322,21 +333,37 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
     {
         xIocap = prvConvertPropertiesToESPIO(xProperties.xPropertyIO);
         xESPstatus = esp_ble_gap_set_security_param( ESP_BLE_SM_IOCAP_MODE, &xIocap, sizeof( uint8_t ) );
+        if( xESPstatus != ESP_OK )
+        {
+        	configPRINTF(("4\n"));
+        }
     }
 
     if( xESPstatus == ESP_OK )
     {
         xESPstatus = esp_ble_gap_set_security_param( ESP_BLE_SM_MAX_KEY_SIZE, &xKeySize, sizeof( uint8_t ) );
+        if( xESPstatus != ESP_OK )
+        {
+        	configPRINTF(("5\n"));
+        }
     }
 
     if( xESPstatus == ESP_OK )
     {
         xESPstatus = esp_ble_gap_set_security_param( ESP_BLE_SM_SET_INIT_KEY, &xInitKey, sizeof( uint8_t ) );
+        if( xESPstatus != ESP_OK )
+        {
+        	configPRINTF(("6\n"));
+        }
     }
 
     if( xESPstatus == ESP_OK )
     {
         xESPstatus = esp_ble_gap_set_security_param( ESP_BLE_SM_SET_RSP_KEY, &xRspKey, sizeof( uint8_t ) );
+        if( xESPstatus != ESP_OK )
+        {
+        	configPRINTF(("7\n"));
+        }
     }
 
     if( xESPstatus != ESP_OK )
@@ -351,18 +378,30 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
     if(xStatus == eBTStatusSuccess)
     {
     	xStatus = prvSetIOs(xProperties.xPropertyIO);
+        if( xStatus != eBTStatusSuccess )
+        {
+        	configPRINTF(("8\n"));
+        }
     }
 
     /* Set bondable property */
     if(xStatus == eBTStatusSuccess)
     {
     	xStatus = prvToggleBondableFlag(xProperties.bBondable);
+        if( xStatus != eBTStatusSuccess )
+        {
+        	configPRINTF(("9\n"));
+        }
     }
 
     /* Set connection only property */
     if(xStatus == eBTStatusSuccess)
     {
     	xStatus = prvToggleSecureConnectionOnlyMode(xProperties.bSecureConnectionOnly);
+        if( xStatus != eBTStatusSuccess )
+        {
+        	configPRINTF(("10\n"));
+        }
     }
 
     if( pxCallbacks != NULL )
@@ -372,6 +411,10 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
     else
     {
         xStatus = eBTStatusFail;
+        if( xStatus != eBTStatusSuccess )
+        {
+        	configPRINTF(("11\n"));
+        }
     }
 
     return xStatus;
