@@ -33,7 +33,7 @@ void esp_profile_cb_reset(void)
 int btc_profile_cb_set(btc_pid_t profile_id, void *cb)
 {
     if (profile_id < 0 || profile_id >= BTC_PID_NUM) {
-    	configPRINTF(("Profile ID is wrong\n",profile_id ));
+    	configPRINTF(("Profile ID is wrong %d\n",profile_id ));
         return -1;
     }
 
