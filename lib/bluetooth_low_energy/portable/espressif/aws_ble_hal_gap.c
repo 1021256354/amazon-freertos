@@ -305,7 +305,7 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
         xESPstatus = esp_ble_gap_register_callback( prvGAPeventHandler );
     if( xESPstatus != ESP_OK )
     {
-    	configPRINTF(("1\n"));
+    	configPRINTF(("1, %d\n", xESPstatus));
     }
     }
 
