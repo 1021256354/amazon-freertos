@@ -1,22 +1,22 @@
-set(cypress94390_module_dir "${AFR_VENDORS_DIR}/cypress/boards/CYW943907AEVAL1F")
-set(cypress94390_ports_dir "${cypress94390_module_dir}/ports")
+set(cypress95490_module_dir "${AFR_VENDORS_DIR}/cypress/boards/CYW954907AEVAL1F")
+set(cypress95490_ports_dir "${cypress95490_module_dir}/ports")
 set(wicedsdk_dir "${AFR_VENDORS_DIR}/cypress/WICED_SDK")
-set(cypress94390_demos_dir "${cypress94390_module_dir}/aws_demos/common")
-set(cypress94390_tests_dir "${cypress94390_module_dir}/aws_tests/common")
+set(cypress95490_demos_dir "${cypress95490_module_dir}/aws_demos/common")
+set(cypress95490_tests_dir "${cypress95490_module_dir}/aws_tests/common")
 
 if(AFR_IS_TESTING)
-    set(cypress94390_app_dir "${cypress94390_tests_dir}")
+    set(cypress95490_app_dir "${cypress95490_tests_dir}")
 else()
-    set(cypress94390_app_dir "${cypress94390_demos_dir}")
+    set(cypress95490_app_dir "${cypress95490_demos_dir}")
 endif()
 
-set(cypress_board "CYW943907AEVAL1F")
+set(cypress_board "CYW954907AEVAL1F")
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
-afr_set_board_metadata(ID "CYW943907AEVAL1F")
-afr_set_board_metadata(DISPLAY_NAME "Cypress CYW943907AEVAL1F Development Kit")
-afr_set_board_metadata(DESCRIPTION "The Cypress CYW943907AEVAL1F Evaluation Kit")
+afr_set_board_metadata(ID "CYW954907AEVAL1F")
+afr_set_board_metadata(DISPLAY_NAME "Cypress CYW954907AEVAL1F Development Kit")
+afr_set_board_metadata(DESCRIPTION "The Cypress CYW954907AEVAL1F Evaluation Kit")
 afr_set_board_metadata(VENDOR_NAME "Cypress")
 afr_set_board_metadata(FAMILY_NAME "ARM")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
@@ -28,8 +28,8 @@ afr_set_board_metadata(RECOMMENDED_IDE "WICED-Studio6.2.1")
 afr_set_board_metadata(IDE_WicedStudio_NAME "WICED Studio by Cypress")
 afr_set_board_metadata(IDE_WicedStudio_COMPILER "GCC")
 afr_set_board_metadata(IDE_WicedStudio_RECOMMENDED "TRUE")
-afr_set_board_metadata(IDE_WicedStudio_PROJECT_LOCATION "${AFR_ROOT_DIR}/demos/cypress/CYW943907AEVAL1F/wicedstudio")
-afr_set_board_metadata(DEMO_COMMON_LOCATION "${cypress94390_demos_dir}")
+afr_set_board_metadata(IDE_WicedStudio_PROJECT_LOCATION "${AFR_ROOT_DIR}/demos/cypress/CYW954907AEVAL1F/wicedstudio")
+afr_set_board_metadata(DEMO_COMMON_LOCATION "${cypress95490_demos_dir}")
 afr_set_board_metadata(THIRD_PARTY_LIB_LOCATION "${wicedsdk_dir}")
 
 # -------------------------------------------------------------------------------------------------
@@ -152,12 +152,12 @@ set(
     "${AFR_3RDPARTY_DIR}/lwip/src/include"
     "${AFR_3RDPARTY_DIR}/lwip/src/include/lwip"
     "${AFR_3RDPARTY_DIR}/lwip/src/portable"
-    "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW943907AEVAL1F"
-    "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW943907AEVAL1F/include"
+    "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW954907AEVAL1F"
+    "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW954907AEVAL1F/include"
     "${AFR_3RDPARTY_DIR}/lwip/src/portable/arch"
     "${AFR_3RDPARTY_DIR}/mbedtls/include"
-    "${cypress94390_app_dir}/application_code/cypress_code/include"
-    "${cypress94390_app_dir}/config_files"
+    "${cypress95490_app_dir}/application_code/cypress_code/include"
+    "${cypress95490_app_dir}/config_files"
     "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
     "${toolchain_path}/include"
     "${toolchain_path}/include-fixed"
@@ -246,7 +246,7 @@ target_sources(
     "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Wiced_CY/portASM.S"
     "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
     "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Wiced_CY/port.c"
-    "${cypress94390_app_dir}/application_code/cypress_code/app_dct.c"
+    "${cypress95490_app_dir}/application_code/cypress_code/app_dct.c"
     "${lwip_api_src}"
     "${lwip_apps_httpd_src}"
     "${lwip_apps_lwiperf_src}"
@@ -323,7 +323,7 @@ target_link_options(
 afr_mcu_port(wifi)
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE "${cypress94390_ports_dir}/wifi/aws_wifi.c"
+    INTERFACE "${cypress95490_ports_dir}/wifi/aws_wifi.c"
 )
 
 # PKCS11
@@ -331,8 +331,8 @@ afr_mcu_port(pkcs11)
 target_sources(
     AFR::pkcs11::mcu_port
     INTERFACE 
-        "${cypress94390_ports_dir}/pkcs11/aws_pkcs11_pal.c"
-        "${cypress94390_ports_dir}/pkcs11/hw_poll.c"
+        "${cypress95490_ports_dir}/pkcs11/aws_pkcs11_pal.c"
+        "${cypress95490_ports_dir}/pkcs11/hw_poll.c"
         "${AFR_MODULES_PORTS_DIR}/pkcs11/mbedtls/aws_pkcs11_mbedtls.c"
 )
 # Link to AFR::pkcs11_mbedtls if you want to use default implementation based on mbedtls.
@@ -372,13 +372,13 @@ else()
 endif()
 
 afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
-afr_glob_src(board_code_src DIRECTORY "${cypress94390_app_dir}/application_code/cypress_code")
+afr_glob_src(board_code_src DIRECTORY "${cypress95490_app_dir}/application_code/cypress_code")
 add_executable(
     ${exe_target}
     ${board_code_src}
     ${network_manager_src}
-    "${cypress94390_app_dir}/application_code/main.c"
-    "${cypress94390_ports_dir}/pkcs11/hw_poll.c"
+    "${cypress95490_app_dir}/application_code/main.c"
+    "${cypress95490_ports_dir}/pkcs11/hw_poll.c"
 )
 
 target_link_libraries(
