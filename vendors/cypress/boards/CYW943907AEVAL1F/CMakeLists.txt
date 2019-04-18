@@ -389,10 +389,10 @@ target_link_libraries(
         AFR::kernel
         AFR::wifi
         AFR::utils
-        "${AFR_ROOT_DIR}/libgcc.a"
-        "${AFR_ROOT_DIR}/libm.a"
-        "${AFR_ROOT_DIR}/libc.a"
-        "${AFR_ROOT_DIR}/libstdc++.a"
+        "${AFR_TOOLCHAIN_PATH}/../lib/gcc/arm-none-eabi/7.2.1/thumb/v7-ar/libgcc.a"
+        "${AFR_TOOLCHAIN_PATH}/../arm-none-eabi/lib/thumb/v7-ar/libm.a"
+        "${AFR_TOOLCHAIN_PATH}/../arm-none-eabi/lib/thumb/v7-ar/libc.a"
+        "${AFR_TOOLCHAIN_PATH}/../arm-none-eabi/lib/thumb/v7-ar/libstdc++.a"
         -Wl,-T"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/dct.ld"
         -Wl,-T"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/app_without_rom.ld"
 )
