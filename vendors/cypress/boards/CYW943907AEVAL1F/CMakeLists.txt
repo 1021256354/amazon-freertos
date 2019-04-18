@@ -129,7 +129,6 @@ set(
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/spi_flash" 
     "${wicedsdk_dir}/platforms/CYW943907AEVAL1F"
     "${wicedsdk_dir}/WICED/platform/include"
-    #"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/./libraries/bluetooth/include"
     "${wicedsdk_dir}/WICED/WWD/"
     "${wicedsdk_dir}/WICED/WWD/include" 
     "${wicedsdk_dir}/WICED/WWD/include/network" 
@@ -138,17 +137,14 @@ set(
     "${wicedsdk_dir}/WICED/WWD/internal/chips/4390x" 
     "${wicedsdk_dir}/libraries/utilities/linked_list" 
     "${wicedsdk_dir}/WICED/RTOS/FreeRTOS/WICED" 
-    #"${wicedsdk_dir}/WICED/network/LwIP/WICED/."
     "${wicedsdk_dir}/WICED/network/LwIP/WWD/." 
     "${wicedsdk_dir}/WICED/RTOS/FreeRTOS/WICED/."
     "${wicedsdk_dir}/WICED/RTOS/FreeRTOS/WWD/."
-    #"${wicedsdk_dir}/WICED/RTOS/FreeRTOS/WWD/./CYW943907AEVAL1F"
     "${wicedsdk_dir}/WICED/RTOS/FreeRTOS/WWD/ARM_CR4"
     "${wicedsdk_dir}/libraries/utilities/wifi/."
     "${wicedsdk_dir}/WICED/."
     "${wicedsdk_dir}/WICED/platform/include"
     "${wicedsdk_dir}/libraries/filesystems/wicedfs/src"
-    #"${wicedsdk_dir}/WICED/libraries/test/wl_tool/43909B0/include"
     "${wicedsdk_dir}/libraries/utilities/wifi"
     "${wicedsdk_dir}/WICED/network/LwIP/WICED"
     "${wicedsdk_dir}/platforms/CYW943907AEVAL1F/."
@@ -298,7 +294,6 @@ target_sources(
     "${wicedsdk_dir}/WICED/internal/wiced_lib.c"
     "${wicedsdk_dir}/WICED/platform/MCU/wwd_resources.c"
     "${wicedsdk_dir}/libraries/utilities/wifi/wifi_utils.c"
-    "${adc_drivers_path}/MAX11615.c"
     "${apps_src}"
 )
 
@@ -314,6 +309,7 @@ target_compile_options(
         ${common_flags}
         $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${c_flags}>
 )
+
 
 # Linker flags
 target_link_options(
@@ -397,7 +393,6 @@ target_link_libraries(
         "${AFR_ROOT_DIR}/libm.a"
         "${AFR_ROOT_DIR}/libc.a"
         "${AFR_ROOT_DIR}/libstdc++.a"
-        -Wl,-T"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/tiny_bootloader.ld"
         -Wl,-T"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/dct.ld"
         -Wl,-T"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/app_without_rom.ld"
 )
