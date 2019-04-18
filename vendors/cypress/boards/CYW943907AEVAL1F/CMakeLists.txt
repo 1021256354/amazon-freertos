@@ -84,7 +84,7 @@ set(
     SFLASH_SUPPORT_MACRONIX_PARTS 
     USING_EXTERNAL_ADC 
     WICED_AMAZON_FREERTOS_SDK 
-    WICED_SDK_WIFI_CONFIG_DCT_H="${wicedsdk_dir}/include/default_wifi_config_dct.h\"
+    WICED_SDK_WIFI_CONFIG_DCT_H=\"${wicedsdk_dir}/include/default_wifi_config_dct.h\"
     WICED_SDK_BT_CONFIG_DCT_H=\"${wicedsdk_dir}/include/default_bt_config_dct.h\"
     __JTAG_FLASH_WRITER_DATA_BUFFER_SIZE__=32768
     BCMDRIVER
@@ -249,18 +249,10 @@ target_include_directories(
 target_sources(
     AFR::kernel::mcu_port
     INTERFACE
-    "${AFR_ROOT_DIR}/demos/common/shadow/aws_iot_demo_shadow.c"
     "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Wiced_CY/portASM.S"
-    "${AFR_KERNEL_DIR}/event_groups.c"
-    "${AFR_KERNEL_DIR}/list.c"
-    "${AFR_KERNEL_DIR}/queue.c"
-    "${AFR_KERNEL_DIR}/tasks.c"
-    "${AFR_KERNEL_DIR}/timers.c"
-    "${AFR_KERNEL_DIR}/stream_buffer.c"
-    #"${AFR_ROOT_DIR}/lib/FreeRTOS/portable/MemMang/heap_3.c"
     "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
     "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Wiced_CY/port.c"
-    "${cypress94390_apps_dir/application_code/cypress_code/app_dct.c"
+    "${cypress94390_app_dir}/application_code/cypress_code/app_dct.c"
     "${lwip_api_src}"
     "${lwip_apps_httpd_src}"
     "${lwip_apps_lwiperf_src}"
@@ -308,7 +300,7 @@ target_sources(
     "${wicedsdk_dir}/libraries/utilities/wifi/wifi_utils.c"
     "${adc_drivers_path}/MAX11615.c"
     "${apps_src}"
-
+)
 
 set(common_flags "-mthumb" "-mcpu=cortex-r4" "-mthumb-interwork" "-mlittle-endian")
 set(c_flags "-Wall" "-Waddress" "-Wundef" "-fsigned-char" "-ffunction-sections" "-fdata-sections" "-fno-common" "-std=gnu11" "-fdiagnostics-color" "-Os" )
@@ -332,10 +324,6 @@ target_link_options(
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
-set(vendor "cypress")
-set(board "CYW943907AEVAL1F")
-set(portable_dir "portable/${vendor}/${board}")
-
 
 # WiFi
 afr_mcu_port(wifi)
@@ -357,24 +345,30 @@ target_sources(
 target_link_libraries(
     AFR::pkcs11::mcu_port
     INTERFACE 
-        AFR::3rdparty::mbedtls
+        3rdparty::mbedtls
+        AFR::crypto
 )
 
 # Secure sockets
 afr_mcu_port(secure_sockets)
 target_link_libraries(
     AFR::secure_sockets::mcu_port
-    INTERFACE AFR::tls
+    INTERFACE 
+        AFR::tls
+        AFR::wifi
 )
 
 target_sources(
     AFR::secure_sockets::mcu_port
     INTERFACE "${AFR_MODULES_PORTS_DIR}/secure_sockets/lwip/aws_secure_sockets.c"
-
+)
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
+file(COPY "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/BCM43907/GCC_tiny_bootloader_memory.ld" DESTINATION . )
+file(COPY "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/BCM43907/GCC_app_without_rom_memory.ld" DESTINATION .)
+file(COPY "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/ddr.ld" DESTINATION GCC/.)
 set(CMAKE_EXECUTABLE_SUFFIX ".elf")
 
 if(AFR_IS_TESTING)
@@ -383,11 +377,13 @@ else()
     set(exe_target aws_demos)
 endif()
 
-afr_glob_src(board_code_src DIRECTORY "${board_code_src}/application_code/cypress_code")
+afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
+afr_glob_src(board_code_src DIRECTORY "${cypress94390_app_dir}/application_code/cypress_code")
 add_executable(
     ${exe_target}
     ${board_code_src}
-    "${cypress94390_apps_dir}/application_code/main.c"
+    ${network_manager_src}
+    "${cypress94390_app_dir}/application_code/main.c"
     "${cypress94390_ports_dir}/pkcs11/hw_poll.c"
 )
 
@@ -401,11 +397,9 @@ target_link_libraries(
         "${AFR_ROOT_DIR}/libm.a"
         "${AFR_ROOT_DIR}/libc.a"
         "${AFR_ROOT_DIR}/libstdc++.a"
-        #"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/BCM43907/GCC_tiny_bootloader.ld" 
-        #-L "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x"
         -Wl,-T"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/tiny_bootloader.ld"
         -Wl,-T"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/dct.ld"
-        #-Wl,-T"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/app_without_rom.ld"
+        -Wl,-T"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/app_without_rom.ld"
 )
 
 find_program(gcc_objcopy arm-none-eabi-objcopy)
@@ -417,5 +411,6 @@ endif()
 set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
 add_custom_command(
     TARGET ${exe_target} POST_BUILD
-    COMMAND "${gcc_objcopy}" -v -O ihex "$<TARGET_FILE:${exe_target}>" "${output_file}"
+    COMMAND "${gcc_objcopy}" -v -O ihex "$<TARGET_FILE:${exe_target}>"
+    "${output_file}"
 )

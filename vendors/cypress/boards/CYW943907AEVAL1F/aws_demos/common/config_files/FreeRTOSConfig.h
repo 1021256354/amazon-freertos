@@ -169,6 +169,12 @@ extern void vLoggingPrint( const char * pcMessage );
  * Only API functions that end in ...FromISR() can be used within interrupts. */
 #define configMAX_SYSCALL_INTERRUPT_PRIORITY        ( 0x20 )
 
+#define configECHO_SERVER_ADDR0              192
+#define configECHO_SERVER_ADDR1              168
+#define configECHO_SERVER_ADDR2              0
+#define configECHO_SERVER_ADDR3              105
+#define configTCP_ECHO_CLIENT_PORT           45000
+
 /* This is the value being used as per the ST library which permits 16
  priority values, 0 to 15.  This must correspond to the
  configKERNEL_INTERRUPT_PRIORITY setting.  Here 15 corresponds to the lowest
