@@ -109,6 +109,26 @@ target_compile_definitions(
     INTERFACE $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${defined_symbols}>
 )
 
+set(common_flags "-mthumb" "-mcpu=cortex-r4" "-mthumb-interwork" "-mlittle-endian")
+set(c_flags "-Wall" "-Waddress" "-Wundef" "-fsigned-char" "-ffunction-sections" "-fdata-sections" "-fno-common" "-std=gnu11" "-fdiagnostics-color" "-Os" )
+
+set(linker_flags "-Wl,-static" "-Wl,--warn-common" "-Wl,--gc-sections" "-Wl,-Os" "-Wl,--cref" "-mthumb" "-mcpu=cortex-r4" "-mthumb-interwork" "-Wl,-A,thumb" "-Wl,-z,max-page-size=0x10" "-Wl,-z,common-page-size=0x10" "-mlittle-endian" "-nostartfiles" "-Wl,--defsym,START_STACK_SIZE=4000" "-Wl,--defsym,FIQ_STACK_SIZE=0" "-Wl,--defsym,IRQ_STACK_SIZE=1024" "-Wl,--defsym,SYS_STACK_SIZE=0") 
+
+# Compiler flags
+target_compile_options(
+    AFR::compiler::mcu_port
+    INTERFACE
+        ${common_flags}
+        $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${c_flags}>
+)
+
+
+# Linker flags
+target_link_options(
+    AFR::compiler::mcu_port
+    INTERFACE ${linker_flags}
+)
+
 # Kernel
 afr_mcu_port(kernel)
 set(toolchain_path "${AFR_TOOLCHAIN_PATH}/../lib/gcc/arm-none-eabi/7.2.1")
@@ -119,41 +139,39 @@ set(
     kernel_inc_dirs
     "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Wiced_CY"
     "${wicedsdk_dir}/include"
-    "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/spi_flash"
     "${wicedsdk_dir}/libraries/utilities/ring_buffer" 
-    "${wicedsdk_dir}/WICED/platform/GCC/" 
-    "${wicedsdk_dir}/libraries/utilities/crc/."
-    "${wicedsdk_dir}/libraries/utilities/TLV/."
-    "${wicedsdk_dir}/WICED/network/LwIP/WWD/FreeRTOS/."
-    "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/."
-    "${wicedsdk_dir}/WICED/platform/MCU/."
+    "${wicedsdk_dir}/libraries/utilities/crc"
+    "${wicedsdk_dir}/libraries/utilities/TLV"
+    "${wicedsdk_dir}/WICED"
+    "${wicedsdk_dir}/WICED/network/LwIP/WWD/FreeRTOS"
+    "${wicedsdk_dir}/WICED/platform/include"
+    "${wicedsdk_dir}/WICED/platform/MCU"
+    "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x"
     "${wicedsdk_dir}/WICED/platform/ARM_CR4"
+    "${wicedsdk_dir}/WICED/platform/GCC/" 
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/WAF"
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals"
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/include"
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/tlsf"
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/spi_flash" 
     "${wicedsdk_dir}/platforms/CYW943907AEVAL1F"
-    "${wicedsdk_dir}/WICED/platform/include"
-    "${wicedsdk_dir}/WICED/WWD/"
     "${wicedsdk_dir}/WICED/WWD/include" 
     "${wicedsdk_dir}/WICED/WWD/include/network" 
     "${wicedsdk_dir}/WICED/WWD/include/RTOS"
+    "${wicedsdk_dir}/WICED/WWD"
     "${wicedsdk_dir}/WICED/WWD/internal/bus_protocols/SoC/43909"
     "${wicedsdk_dir}/WICED/WWD/internal/chips/4390x" 
     "${wicedsdk_dir}/libraries/utilities/linked_list" 
     "${wicedsdk_dir}/WICED/RTOS/FreeRTOS/WICED" 
-    "${wicedsdk_dir}/WICED/network/LwIP/WWD/." 
-    "${wicedsdk_dir}/WICED/RTOS/FreeRTOS/WICED/."
-    "${wicedsdk_dir}/WICED/RTOS/FreeRTOS/WWD/."
+    "${wicedsdk_dir}/WICED/network/LwIP/WWD" 
+    "${wicedsdk_dir}/WICED/RTOS/FreeRTOS/WICED"
+    "${wicedsdk_dir}/WICED/RTOS/FreeRTOS/WWD"
     "${wicedsdk_dir}/WICED/RTOS/FreeRTOS/WWD/ARM_CR4"
-    "${wicedsdk_dir}/libraries/utilities/wifi/."
-    "${wicedsdk_dir}/WICED/."
-    "${wicedsdk_dir}/WICED/platform/include"
+    "${wicedsdk_dir}/libraries/utilities/wifi"
     "${wicedsdk_dir}/libraries/filesystems/wicedfs/src"
     "${wicedsdk_dir}/libraries/utilities/wifi"
     "${wicedsdk_dir}/WICED/network/LwIP/WICED"
-    "${wicedsdk_dir}/platforms/CYW943907AEVAL1F/."
+    "${wicedsdk_dir}/platforms/CYW943907AEVAL1F"
     "${wicedsdk_dir}/platforms/CYW943907AEVAL1F/board_revision/P103"
     "${AFR_3RDPARTY_DIR}/jsmn"
     "${AFR_3RDPARTY_DIR}/pkcs11"
@@ -267,6 +285,11 @@ target_sources(
     "${lwip_arch_src}"
     "${lwip_portable_src}"
     "${peripheral_src}"
+    "${wwd_FreeRTOS}"
+    "${wwd_internal_src}"
+    "${platform_src}"
+    "${platform_headers}"
+    "${shared_src}"
     "${wicedsdk_dir}/WICED/RTOS/wiced_rtos_common.c"
     "${wicedsdk_dir}/WICED/RTOS/FreeRTOS/WICED/wiced_rtos.c"
     "${wicedsdk_dir}/WICED/network/wiced_network_common.c"
@@ -274,12 +297,9 @@ target_sources(
     "${wicedsdk_dir}/WICED/network/LwIP/WICED/wiced_network.c"
     "${wicedsdk_dir}/WICED/network/LwIP/WICED/tcpip.c"
     "${wicedsdk_dir}/WICED/network/LwIP/WICED/wiced_ping.c"
-    "${wwd_FreeRTOS}"
-    "${wwd_internal_src}"
     "${wicedsdk_dir}/libraries/filesystems/wicedfs/src/wicedfs.c"
     "${wicedsdk_dir}/libraries/filesystems/wicedfs/wicedfs_drivers.c"
     "${wicedsdk_dir}/libraries/filesystems/wicedfs/src/unit/wicedfs_unit_images.c"
-    "${platform_src}"
     "${wicedsdk_dir}/libraries/utilities/crc/crc.c"
     "${wicedsdk_dir}/libraries/utilities/TLV/tlv.c"
     "${wicedsdk_dir}/libraries/utilities/ring_buffer/ring_buffer.c"
@@ -289,7 +309,6 @@ target_sources(
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/spi_flash/spi_flash_compatible.c"
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/uart/platform_uart.c"
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/crypto/tiny_crypto/platform_tiny_crypto.c"
-    "${shared_src}"
     "${wicedsdk_dir}/WICED/internal/wiced_core.c"
     "${wicedsdk_dir}/WICED/internal/wiced_low_power.c"
     "${wicedsdk_dir}/WICED/internal/waf.c"
@@ -302,25 +321,6 @@ target_sources(
     "${apps_src}"
 )
 
-set(common_flags "-mthumb" "-mcpu=cortex-r4" "-mthumb-interwork" "-mlittle-endian")
-set(c_flags "-Wall" "-Waddress" "-Wundef" "-fsigned-char" "-ffunction-sections" "-fdata-sections" "-fno-common" "-std=gnu11" "-fdiagnostics-color" "-Os" )
-
-set(linker_flags "-Wl,-static" "-Wl,--warn-common" "-Wl,--gc-sections" "-Wl,-Os" "-Wl,--cref" "-mthumb" "-mcpu=cortex-r4" "-mthumb-interwork" "-Wl,-A,thumb" "-Wl,-z,max-page-size=0x10" "-Wl,-z,common-page-size=0x10" "-mlittle-endian" "-nostartfiles" "-Wl,--defsym,START_STACK_SIZE=4000" "-Wl,--defsym,FIQ_STACK_SIZE=0" "-Wl,--defsym,IRQ_STACK_SIZE=1024" "-Wl,--defsym,SYS_STACK_SIZE=0") 
-
-# Compiler flags
-target_compile_options(
-    AFR::compiler::mcu_port
-    INTERFACE
-        ${common_flags}
-        $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${c_flags}>
-)
-
-
-# Linker flags
-target_link_options(
-    AFR::compiler::mcu_port
-    INTERFACE ${linker_flags}
-)
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS portable layers
