@@ -80,8 +80,11 @@ set(
     configUSE_RECURSIVE_MUTEXES 
     FreeRTOS_VERSION=\"v10.0.0\" 
     SFLASH_SUPPORT_MACRONIX_PARTS 
-    USING_EXTERNAL_ADC 
-    WICED_AMAZON_FREERTOS_SDK 
+    USING_EXTERNAL_ADC
+    NETWORK_NoNS=1
+    WICED_AMAZON_FREERTOS_SDK
+    UNITY_EXCLUDE_MATH_H
+    UNITY_INCLUDE_CONFIG_H
     WICED_SDK_WIFI_CONFIG_DCT_H=\"${wicedsdk_dir}/include/default_wifi_config_dct.h\"
     WICED_SDK_BT_CONFIG_DCT_H=\"${wicedsdk_dir}/include/default_bt_config_dct.h\"
     __JTAG_FLASH_WRITER_DATA_BUFFER_SIZE__=32768
@@ -94,6 +97,11 @@ set(
     CFG_GMAC
     BCMCHIPREV=2
     NO_WIFI_FIRMWARE
+    WICED_DISABLE_STDIO
+    WICED_DISABLE_MCU_POWERSAVE
+    WICED_DCACHE_WTHROUGH
+    WICED_NO_VECTORS
+    PLATFORM_NO_SFLASH_WRITE=1
 )
 
 target_compile_definitions(
@@ -161,7 +169,6 @@ set(
     "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
     "${toolchain_path}/include"
     "${toolchain_path}/include-fixed"
-    "${include_path}"
     "${adc_drivers_path}"
 )
 

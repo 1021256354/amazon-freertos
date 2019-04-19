@@ -80,8 +80,11 @@ set(
     configUSE_RECURSIVE_MUTEXES 
     FreeRTOS_VERSION=\"v10.0.0\" 
     SFLASH_SUPPORT_MACRONIX_PARTS 
-    USING_EXTERNAL_ADC 
-    WICED_AMAZON_FREERTOS_SDK 
+    USING_EXTERNAL_ADC
+    NETWORK_NoNS=1
+    WICED_AMAZON_FREERTOS_SDK
+    UNITY_EXCLUDE_MATH_H
+    UNITY_INCLUDE_CONFIG_H
     WICED_SDK_WIFI_CONFIG_DCT_H=\"${wicedsdk_dir}/include/default_wifi_config_dct.h\"
     WICED_SDK_BT_CONFIG_DCT_H=\"${wicedsdk_dir}/include/default_bt_config_dct.h\"
     __JTAG_FLASH_WRITER_DATA_BUFFER_SIZE__=32768
@@ -94,6 +97,11 @@ set(
     CFG_GMAC
     BCMCHIPREV=2
     NO_WIFI_FIRMWARE
+    WICED_DISABLE_STDIO
+    WICED_DISABLE_MCU_POWERSAVE
+    WICED_DCACHE_WTHROUGH
+    WICED_NO_VECTORS
+    PLATFORM_NO_SFLASH_WRITE=1
 )
 
 target_compile_definitions(
@@ -104,7 +112,6 @@ target_compile_definitions(
 # Kernel
 afr_mcu_port(kernel)
 set(toolchain_path "${AFR_TOOLCHAIN_PATH}/../lib/gcc/arm-none-eabi/7.2.1")
-set(include_path "${AFR_TOOLCHAIN_PATH}/../arm-none-eabi/include")
 set(adc_drivers_path "${AFR_TOOLCHAIN_PATH}/../../../../libraries/drivers/adc/MAX11615")
 
 set(
@@ -161,7 +168,6 @@ set(
     "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
     "${toolchain_path}/include"
     "${toolchain_path}/include-fixed"
-    "${include_path}"
     "${adc_drivers_path}"
 )
 
@@ -177,7 +183,7 @@ afr_glob_src(lwip_apps_tftp_src DIRECTORY "${AFR_3RDPARTY_DIR}/lwip/src/apps/tft
 afr_glob_src(lwip_core_src DIRECTORY "${AFR_3RDPARTY_DIR}/lwip/src/core" RECURSE)
 afr_glob_src(lwip_netif_src DIRECTORY "${AFR_3RDPARTY_DIR}/lwip/src/netif" RECURSE)
 afr_glob_src(lwip_arch_src DIRECTORY "${AFR_3RDPARTY_DIR}/lwip/src/portable/arch")
-afr_glob_src(lwip_portable_src DIRECTORY "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW943907AEVAL1F" RECURSE)
+afr_glob_src(lwip_portable_src DIRECTORY "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW954507AEVAL1F" RECURSE)
 afr_glob_src(wwd_bus_protocol_chips_src DIRECTORY "${wicedsdk_dir}/WICED/internal")
 afr_glob_src(wwd_internal_src DIRECTORY "${wicedsdk_dir}/WICED/WWD/internal" RECURSE)
 afr_glob_src(wwd_FreeRTOS DIRECTORY "${wicedsdk_dir}/WICED/RTOS/FreeRTOS/WWD" RECURSE)
