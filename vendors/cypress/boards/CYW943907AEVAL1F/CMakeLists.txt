@@ -382,8 +382,8 @@ afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 afr_glob_src(board_code_src DIRECTORY "${cypress94390_app_dir}/application_code/cypress_code")
 add_executable(
     ${exe_target}
-    ${board_code_src}
-    ${network_manager_src}
+    ${board_code_src}  
+    "$<$<NOT:${AFR_IS_TESTING}>:${network_manager_src}>"
     "${cypress94390_app_dir}/application_code/main.c"
     "${cypress94390_ports_dir}/pkcs11/hw_poll.c"
 )
