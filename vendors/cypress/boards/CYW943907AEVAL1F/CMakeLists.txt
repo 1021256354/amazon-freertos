@@ -28,7 +28,7 @@ afr_set_board_metadata(RECOMMENDED_IDE "WICED-Studio6.2.1")
 afr_set_board_metadata(IDE_WicedStudio_NAME "WICED Studio by Cypress")
 afr_set_board_metadata(IDE_WicedStudio_COMPILER "GCC")
 afr_set_board_metadata(IDE_WicedStudio_RECOMMENDED "TRUE")
-afr_set_board_metadata(IDE_WicedStudio_PROJECT_LOCATION "${AFR_ROOT_DIR}/demos/cypress/CYW943907AEVAL1F/wicedstudio")
+afr_set_board_metadata(IDE_WicedStudio_PROJECT_LOCATION "$<IF:${AFR_IS_TESTING},${cypress94390_module_dir}/aws_tests,${cypress94390_module_dir}/aws_demos>/wicedstudio")
 afr_set_board_metadata(DEMO_COMMON_LOCATION "${cypress94390_demos_dir}")
 afr_set_board_metadata(THIRD_PARTY_LIB_LOCATION "${wicedsdk_dir}")
 
@@ -158,7 +158,7 @@ set(
     "${AFR_3RDPARTY_DIR}/mbedtls/include"
     "${cypress94390_app_dir}/application_code/cypress_code/include"
     "${cypress94390_app_dir}/config_files"
-    "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
+    "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
     "${toolchain_path}/include"
     "${toolchain_path}/include-fixed"
     "${include_path}"
