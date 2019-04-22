@@ -43,6 +43,7 @@ if(NOT PERL)
     message(FATAL_ERROR "Cannot find perl")
 endif()
 
+# Create generated_security_dct.h
 set(security_dct_file "${wicedsdk_dir}/generated_security_dct.h")
 execute_process(
     COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/certs_to_h.pl" "CERTIFICATE_STRING"
@@ -56,18 +57,26 @@ execute_process(
 
 file(APPEND "${security_dct_file}" "${private_string}")
 
-set(clm_blob_file "43909B0_clm_blob.c")
+# Create 43909B0.clm_blob file
+set(clm_blob_file "${wicedsdk_dir}/43909B0_clm_blob.c")
 execute_process(
     COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/bin_to_resource_c.pl" "FILESYSTEM" "resources_firmware_DIR_43909_DIR_43909B0_clm_blob" "${wicedsdk_dir}/resources/firmware/43909/43909B0.clm_blob"
     OUTPUT_FILE ${clm_blob_file}
 )
 
-set(43909B0_bin_file "43909B0_bin.c")
+# Create 43909B0.bin file
+set(43909B0_bin_file "${wicedsdk_dir}/43909B0_bin.c")
 execute_process(
     COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/bin_to_resource_c.pl" "FILESYSTEM" "resources_firmware_DIR_43909_DIR_43909B0_bin" "${wicedsdk_dir}/resources/firmware/43909/43909B0.bin"
     OUTPUT_FILE ${43909B0_bin_file}
 )
 
+# Create generated_mac_address.txt file
+set(mac_generator_file "${wicedsdk_dir}/generated_mac_address.txt")
+execute_process(
+    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../mac_generator/mac_generator.pl"
+    OUTPUT_FILE ${mac_generator_file}
+)
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
