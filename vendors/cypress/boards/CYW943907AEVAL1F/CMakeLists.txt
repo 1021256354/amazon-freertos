@@ -33,6 +33,41 @@ afr_set_board_metadata(DEMO_COMMON_LOCATION "${cypress94390_demos_dir}")
 afr_set_board_metadata(THIRD_PARTY_LIB_LOCATION "${wicedsdk_dir}")
 
 # -------------------------------------------------------------------------------------------------
+# Creating Security Credentials
+# -------------------------------------------------------------------------------------------------
+
+find_program(PERL perl)
+
+if(NOT PERL)
+    message(FATAL_ERROR "Cannot find perl")
+endif()
+
+set(security_dct_file "${wicedsdk_dir}/generated_security_dct.h")
+execute_process(
+    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/certs_to_h.pl" "CERTIFICATE_STRING"
+    OUTPUT_FILE ${security_dct_file}
+)
+
+execute_process(
+    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/certs_to_h.pl" "PRIVATE_KEY_STRING"
+    OUTPUT_VARIABLE private_string
+)
+
+file(APPEND "${security_dct_file}" "${private_string}")
+
+set(clm_blob_file "43909B0_clm_blob.c")
+execute_process(
+    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/bin_to_resource_c.pl" "FILESYSTEM" "resources_firmware_DIR_43909_DIR_43909B0_clm_blob" "${wicedsdk_dir}/resources/firmware/43909/43909B0.clm_blob"
+    OUTPUT_FILE ${clm_blob_file}
+)
+
+set(43909B0_bin_file "43909B0_bin.c")
+execute_process(
+    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/bin_to_resource_c.pl" "FILESYSTEM" "resources_firmware_DIR_43909_DIR_43909B0_bin" "${wicedsdk_dir}/resources/firmware/43909/43909B0.bin"
+    OUTPUT_FILE ${43909B0_bin_file}
+)
+
+# -------------------------------------------------------------------------------------------------
 # Compiler settings
 # -------------------------------------------------------------------------------------------------
 afr_mcu_port(compiler)
@@ -364,6 +399,7 @@ target_sources(
     INTERFACE "${AFR_MODULES_PORTS_DIR}/secure_sockets/lwip/aws_secure_sockets.c"
 )
 
+
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
@@ -377,6 +413,7 @@ if(AFR_IS_TESTING)
 else()
     set(exe_target aws_demos)
 endif()
+
 
 afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 afr_glob_src(board_code_src DIRECTORY "${cypress94390_app_dir}/application_code/cypress_code")
@@ -414,3 +451,4 @@ add_custom_command(
     COMMAND "${gcc_objcopy}" -v -O ihex "$<TARGET_FILE:${exe_target}>"
     "${output_file}"
 )
+
