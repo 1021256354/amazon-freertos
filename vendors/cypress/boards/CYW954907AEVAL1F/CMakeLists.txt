@@ -36,7 +36,6 @@ afr_set_board_metadata(THIRD_PARTY_LIB_LOCATION "${wicedsdk_dir}")
 # -------------------------------------------------------------------------------------------------
 # Creating Security Credentials
 # -------------------------------------------------------------------------------------------------
-
 find_program(PERL perl)
 
 if(NOT PERL)
@@ -44,7 +43,7 @@ if(NOT PERL)
 endif()
 
 # Create generated_security_dct.h
-set(security_dct_file "${wicedsdk_dir}/generated_security_dct.h")
+set(security_dct_file "${wicedsdk_dir}/include/generated_security_dct.h")
 execute_process(
     COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/certs_to_h.pl" "CERTIFICATE_STRING"
     OUTPUT_FILE ${security_dct_file}
@@ -58,14 +57,14 @@ execute_process(
 file(APPEND "${security_dct_file}" "${private_string}")
 
 # Create 43909B0.clm_blob file
-set(clm_blob_file "${wicedsdk_dir}/43909B0_clm_blob.c")
+set(clm_blob_file "${wicedsdk_dir}/include/43909B0_clm_blob.c")
 execute_process(
     COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/bin_to_resource_c.pl" "FILESYSTEM" "resources_firmware_DIR_43909_DIR_43909B0_clm_blob" "${wicedsdk_dir}/resources/firmware/43909/43909B0.clm_blob"
     OUTPUT_FILE ${clm_blob_file}
 )
 
 # Create 43909B0.bin file
-set(43909B0_bin_file "${wicedsdk_dir}/43909B0_bin.c")
+set(43909B0_bin_file "${wicedsdk_dir}/include/43909B0_bin.c")
 execute_process(
     COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/bin_to_resource_c.pl" "FILESYSTEM" "resources_firmware_DIR_43909_DIR_43909B0_bin" "${wicedsdk_dir}/resources/firmware/43909/43909B0.bin"
     OUTPUT_FILE ${43909B0_bin_file}
@@ -77,6 +76,17 @@ execute_process(
     COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../mac_generator/mac_generator.pl"
     OUTPUT_FILE ${mac_generator_file}
 )
+
+# Create resources.h file
+set(resources_file "${wicedsdk_dir}/include/resources.h")
+file(WRITE "${resources_file}" "/* Automatically generated file - this comment ensures resources.h file creation */")
+
+execute_process(
+    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/resources_header.pl" "${43909B0_bin_file}" "${clm_blob_file}"
+    OUTPUT_VARIABLE resources_string
+)
+
+file(APPEND "${resources_file}" "${resources_string}")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
