@@ -88,6 +88,12 @@ execute_process(
 
 file(APPEND "${resources_file}" "${resources_string}")
 
+execute_process(
+    COMMAND "${AFR_TOOLCHAIN_PATH}/../../../common/OSX/bin2c"
+        "${wicedsdk_dir}/waf.tiny_bootloader-NoOS-NoNS-CYW943907AEVAL1F-P103-SoC.43909.bin"
+        "${wicedsdk_dir}/tiny_bootloader_bin2c.c" tinybl_bin
+)
+
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
 # -------------------------------------------------------------------------------------------------
@@ -329,7 +335,6 @@ target_sources(
         "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Wiced_CY/portASM.S"
         "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
         "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Wiced_CY/port.c"
-        "${cypress95490_app_dir}/application_code/cypress_code/app_dct.c"
         "${lwip_api_src}"
         "${lwip_apps_httpd_src}"
         "${lwip_apps_lwiperf_src}"
@@ -374,10 +379,11 @@ target_sources(
         "${wicedsdk_dir}/WICED/internal/wiced_lib.c"
         "${wicedsdk_dir}/WICED/platform/MCU/wwd_resources.c"
         "${wicedsdk_dir}/libraries/utilities/wifi/wifi_utils.c"
+        "${wicedsdk_dir}/tiny_bootloader_bin2c.c"
         "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW954907AEVAL1F/wwd_buffer.c"
         "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW954907AEVAL1F/wwd_network.c"
         "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW954907AEVAL1F/netif/ethernetif.c"
-    #"${apps_src}"
+        "${cypress95490_app_dir}/application_code/cypress_code/app_dct.c"
 )
 
 
@@ -401,6 +407,7 @@ target_sources(
         "${cypress95490_ports_dir}/pkcs11/hw_poll.c"
         "${AFR_MODULES_PORTS_DIR}/pkcs11/mbedtls/aws_pkcs11_mbedtls.c"
 )
+
 # Link to AFR::pkcs11_mbedtls if you want to use default implementation based on mbedtls.
 target_link_libraries(
     AFR::pkcs11::mcu_port
@@ -475,9 +482,9 @@ add_custom_command(
 )
 
 
-# Making filesystem
 
+# Making filesystem
 execute_process(
-    COMMAND "${AFR_TOOLCHAIN_PATH}/../../../common/OSX/mk_wicedfs32"  "filesystem.bin" 
+    COMMAND "${AFR_TOOLCHAIN_PATH}/../../../common/OSX/mk_wicedfs32" "filesystem.bin" 
     "${wicedsdk_dir}/resources/firmware/"
 )
