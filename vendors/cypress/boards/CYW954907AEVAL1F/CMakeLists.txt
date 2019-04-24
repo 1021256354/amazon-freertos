@@ -473,3 +473,11 @@ add_custom_command(
     COMMAND "${gcc_objcopy}" -v -O ihex "$<TARGET_FILE:${exe_target}>"
     "${output_file}"
 )
+
+
+# Making filesystem
+
+execute_process(
+    COMMAND "${AFR_TOOLCHAIN_PATH}/../../../common/OSX/mk_wicedfs32"  "filesystem.bin" 
+    "${wicedsdk_dir}/resources/firmware/"
+)
