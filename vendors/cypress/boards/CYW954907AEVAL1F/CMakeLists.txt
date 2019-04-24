@@ -163,7 +163,7 @@ set(
 set(common_flags "-mthumb" "-mcpu=cortex-r4" "-mthumb-interwork" "-mlittle-endian")
 set(c_flags "-Wall" "-Waddress" "-Wundef" "-fsigned-char" "-ffunction-sections" "-fdata-sections" "-fno-common" "-std=gnu11" "-fdiagnostics-color" "-Os" )
 
-set(linker_flags "-Wl,-static" "-Wl,--warn-common" "-Wl,--gc-sections" "-Wl,-Os" "-Wl,--cref" "-mthumb" "-mcpu=cortex-r4" "-mthumb-interwork" "-Wl,-A,thumb" "-Wl,-z,max-page-size=0x10" "-Wl,-z,common-page-size=0x10" "-mlittle-endian" "-nostartfiles" "-Wl,--defsym,START_STACK_SIZE=4000" "-Wl,--defsym,FIQ_STACK_SIZE=0" "-Wl,--defsym,IRQ_STACK_SIZE=1024" "-Wl,--defsym,SYS_STACK_SIZE=0") 
+set(linker_flags "-Wl,-static" "-Wl,--warn-common" "-Wl,--gc-sections" "-Wl,-Os" "-Wl,--cref" "-mthumb" "-mcpu=cortex-r4" "-mthumb-interwork" "-Wl,-A,thumb" "-Wl,-z,max-page-size=0x10" "--specs=rdimon.specs" "-Wl,-z,common-page-size=0x10" "-mlittle-endian" "-nostartfiles" "-Wl,--defsym,START_STACK_SIZE=800" "-Wl,--defsym,FIQ_STACK_SIZE=0" "-Wl,--defsym,IRQ_STACK_SIZE=1024" "-Wl,--defsym,SYS_STACK_SIZE=0") 
 
 
 target_compile_definitions(
@@ -264,8 +264,9 @@ afr_glob_src(wwd_bus_protocol_chips_src DIRECTORY "${wicedsdk_dir}/WICED/interna
 afr_glob_src(wwd_internal_src DIRECTORY "${wicedsdk_dir}/WICED/WWD/internal" RECURSE)
 afr_glob_src(wwd_FreeRTOS DIRECTORY "${wicedsdk_dir}/WICED/RTOS/FreeRTOS/WWD" RECURSE)
 afr_glob_src( shared_src DIRECTORY "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/shared")
+afr_glob_src(gcc_src DIRECTORY "${wicedsdk_dir}/WICED/platform/GCC")
 
-
+message ("GCC source ${wwd_FreeRTOS}")
 set(platform_src
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/vector_table_GCC.S"
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/start_GCC.S"
@@ -325,6 +326,11 @@ target_include_directories(
 target_sources(
     AFR::kernel::mcu_port
     INTERFACE
+    "${wicedsdk_dir}/WICED/platform/GCC/cxx_funcs.c"
+    "${wicedsdk_dir}/WICED/platform/GCC/math_newlib.c"
+    "${wicedsdk_dir}/WICED/platform/GCC/mem_newlib.c"
+    "${wicedsdk_dir}/WICED/platform/GCC/stdio_newlib.c"
+    "${wicedsdk_dir}/WICED/platform/GCC/time_newlib.c"
     "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Wiced_CY/portASM.S"
     "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
     "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Wiced_CY/port.c"
@@ -359,7 +365,6 @@ target_sources(
     "${wicedsdk_dir}/libraries/utilities/crc/crc.c"
     "${wicedsdk_dir}/libraries/utilities/TLV/tlv.c"
     "${wicedsdk_dir}/libraries/utilities/ring_buffer/ring_buffer.c"
-    "${wicedsdk_dir}/WICED/platform/GCC/cxx_funcs.c"
     "${wicedsdk_dir}/platforms/CYW943907AEVAL1F/platform.c"
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/spi_flash/spi_flash.c"
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/spi_flash/spi_flash_compatible.c"
@@ -374,6 +379,9 @@ target_sources(
     "${wicedsdk_dir}/WICED/internal/wiced_lib.c"
     "${wicedsdk_dir}/WICED/platform/MCU/wwd_resources.c"
     "${wicedsdk_dir}/libraries/utilities/wifi/wifi_utils.c"
+    "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW954907AEVAL1F/wwd_buffer.c"
+    "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW954907AEVAL1F/wwd_network.c"
+    "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW954907AEVAL1F/netif/ethernetif.c"
     "${apps_src}"
 )
 
@@ -452,9 +460,9 @@ target_link_libraries(
         AFR::utils
         "${AFR_TOOLCHAIN_PATH}/../lib/gcc/arm-none-eabi/7.2.1/thumb/v7-ar/libgcc.a"
         "${AFR_TOOLCHAIN_PATH}/../arm-none-eabi/lib/thumb/v7-ar/libm.a"
-        "${AFR_TOOLCHAIN_PATH}/../arm-none-eabi/lib/thumb/v7-ar/libc.a"
+        #"${AFR_TOOLCHAIN_PATH}/../arm-none-eabi/lib/thumb/v7-ar/libc.a"
         "${AFR_TOOLCHAIN_PATH}/../arm-none-eabi/lib/thumb/v7-ar/libstdc++.a"
-        -Wl,-T"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/dct.ld"
+        #-Wl,-T"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/dct.ld"
         -Wl,-T"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/app_without_rom.ld"
 )
 
