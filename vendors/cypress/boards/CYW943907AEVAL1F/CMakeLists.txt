@@ -32,6 +32,7 @@ afr_set_board_metadata(IDE_WicedStudio_PROJECT_LOCATION "$<IF:${AFR_IS_TESTING},
 afr_set_board_metadata(DEMO_COMMON_LOCATION "${cypress94390_demos_dir}")
 afr_set_board_metadata(THIRD_PARTY_LIB_LOCATION "${wicedsdk_dir}")
 
+
 # -------------------------------------------------------------------------------------------------
 # Creating Security Credentials
 # -------------------------------------------------------------------------------------------------
@@ -87,6 +88,12 @@ execute_process(
 
 file(APPEND "${resources_file}" "${resources_string}")
 
+execute_process(
+    COMMAND "${AFR_TOOLCHAIN_PATH}/../../../common/OSX/bin2c"
+        "${wicedsdk_dir}/waf.tiny_bootloader-NoOS-NoNS-CYW943907AEVAL1F-P103-SoC.43909.bin"
+        "${wicedsdk_dir}/tiny_bootloader_bin2c.c" tinybl_bin
+)
+
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
 # -------------------------------------------------------------------------------------------------
@@ -125,11 +132,10 @@ set(
     ENABLE_ARM_DSP_INSTRUCTIONS
     PLAT_NOTIFY_FREE
     USING_WICEDFS
-    #wifi_firmware_image="${wicedsdk_dir}/resources/firmware/43909/43909B0.bin"
     WWD_STARTUP_DELAY=10
     BOOTLOADER_MAGIC_NUMBER=0x4d435242
-    #NETWORK_LwIP=1 
-    #LwIP_VERSION=\"v2.0.3\"
+    NETWORK_LwIP=1 
+    LwIP_VERSION=\"v2.0.3\"
     RTOS_FreeRTOS=1 
     configUSE_MUTEXES 
     configUSE_RECURSIVE_MUTEXES 
@@ -159,36 +165,101 @@ set(
     PLATFORM_NO_SFLASH_WRITE=1
 )
 
-target_compile_definitions(
-    AFR::compiler::mcu_port
-    INTERFACE $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${defined_symbols}>
-)
-
 set(common_flags "-mthumb" "-mcpu=cortex-r4" "-mthumb-interwork" "-mlittle-endian")
-set(c_flags "-Wall" "-Waddress" "-Wundef" "-fsigned-char" "-ffunction-sections"
-    "-fdata-sections" "-fno-common" "-std=gnu11" "-fdiagnostics-color" "-Os" )
+set(c_flags "-Wall" "-Waddress" "-Wundef" "-fsigned-char" "-ffunction-sections" "-fdata-sections" "-fno-common" "-std=gnu11" "-fdiagnostics-color" "-Os" )
 
-set(linker_flags "-Wl,-static" "-Wl,--warn-common" "-Wl,--gc-sections" "-Wl,-Os" "-Wl,--cref"
-    "-mthumb" "-mcpu=cortex-r4" "-mthumb-interwork" "-Wl,-A,thumb" "-Wl,-z,max-page-size=0x10" "-Wl,-z,common-page-size=0x10" "-mlittle-endian" "-nostartfiles" "-Wl,--defsym,START_STACK_SIZE=4000" "-Wl,--defsym,FIQ_STACK_SIZE=0" "-Wl,--defsym,IRQ_STACK_SIZE=1024" "-Wl,--defsym,SYS_STACK_SIZE=0") 
+set(linker_flags "-Wl,-static" "-Wl,--warn-common" "-Wl,--gc-sections" "-Wl,-Os" "-mthumb" "-mcpu=cortex-r4" "-mthumb-interwork" "-Wl,-A,thumb" "-Wl,-z,max-page-size=0x10"  "-Wl,-z,common-page-size=0x10" "-mlittle-endian" "-nostartfiles" "-Wl,--defsym,START_STACK_SIZE=800" "-Wl,--defsym,FIQ_STACK_SIZE=0" "-Wl,--defsym,IRQ_STACK_SIZE=1024" "-Wl,--defsym,SYS_STACK_SIZE=0") 
 
-# Compiler flags
-target_compile_options(
-    AFR::compiler::mcu_port
-    INTERFACE
-        ${common_flags}
-        $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${c_flags}>
+
+# DCT compilation
+set(dct_defined_symbols
+    SFLASH_APPS_HEADER_LOC=0x00010000
+    PLATFORM_NO_DDR=1
+    PLATFORM_NO_GMAC=1
+    OTP_WORD_NUM_SHA_KEY=258
+    OTP_WORD_NUM_SHA_KEY_R=242
+    OTP_WORD_NUM_AES_KEY=282
+    OTP_WORD_NUM_AES_KEY_R=274
+    SECUREBOOT_SHA_KEY_SIZE=32
+    GSIO_I2C_REPEATED_START_NEEDS_GPIO=1
+    PLATFORM_HIB_WAKE_CTRL_FREQ_BITS_FLIPPED
+    CRLF_STDIO_REPLACEMENT
+    WICED_DISABLE_CONFIG_TLS
+    PLATFORM_SECURESFLASH_ENABLED=0
+    PLATFORM_SECUREDCT_ENABLED=0
+    NORMAL_IMAGE_DCT_1_AREA_BASE=0x00008000
+    PLATFORM_ALP_CLOCK_RES_FIXUP=0
+    MAX_WATCHDOG_TIMEOUT_SECONDS=22
+    MAX_WAKE_FROM_SLEEP_DELAY_TICKS=500
+    PLATFORM_L1_CACHE_SHIFT=5
+    PLATFORM_SUPPORTS_LOW_POWER_MODES
+    BCM43909
+    ENABLE_ARM_DSP_INSTRUCTIONS
+    PLAT_NOTIFY_FREE
+    USING_WICEDFS
+    NO_WICED_API
+    WWD_STARTUP_DELAY=10
+    BOOTLOADER_MAGIC_NUMBER=0x4d435242
+    SFLASH_SUPPORT_MACRONIX_PARTS
+    USING_EXTERNAL_ADC
+    NETWORK_LwIP=1
+    LwIP_VERSION=\"v2.0.3\"
+    RTOS_FreeRTOS=1 
+    WICED_DISABLE_STDIO
+    WICED_DISABLE_MCU_POWERSAVE
+    WICED_DCACHE_WTHROUGH
+    wifi_firmware_image=resources_firmware_DIR_43909_DIR_43909B0_bin
+    DCT_CRC32_CALCULATION_SIZE_ON_STACK=1024
+    configUSE_MUTEXES
+    configUSE_RECURSIVE_MUTEXES
+    FreeRTOS_VERSION=\"v10.0.0\"
+    WICED_AMAZON_FREERTOS_SDK
+    WICED_SDK_WIFI_CONFIG_DCT_H=\"${wicedsdk_dir}/include/default_wifi_config_dct.h\"
+    WICED_SDK_BT_CONFIG_DCT_H=\"${wicedsdk_dir}/include/default_bt_config_dct.h\"
 )
 
-# Linker flags
-target_link_options(
-    AFR::compiler::mcu_port
-    INTERFACE ${linker_flags}
+
+set(dct_include_dirs
+"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/spi_flash"
+"${wicedsdk_dir}/libraries/utilities/ring_buffer" 
+"${wicedsdk_dir}/WICED/platform/GCC"
+"${wicedsdk_dir}/libraries/utilities/crc"
+"${wicedsdk_dir}/libraries/utilities/TLV"
+"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x"
+"${wicedsdk_dir}/WICED/platform/MCU"
+"${wicedsdk_dir}/WICED/platform/ARM_CR4"
+"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/WAF"
+"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals"
+"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/include"
+"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/tlsf" 
+"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/spi_flash"
+"${wicedsdk_dir}/platforms/CYW943907AEVAL1F"
+"${wicedsdk_dir}/platforms/CYW943907AEVAL1F/board_revision/P103"
+"${wicedsdk_dir}/WICED/platform/include"
+"${wicedsdk_dir}/WICED/WWD"
+"${wicedsdk_dir}/WICED/WWD/include"
+"${wicedsdk_dir}/WICED/WWD/include/network"
+"${wicedsdk_dir}/WICED/WWD/include/RTOS"
+"${wicedsdk_dir}/WICED/WWD/internal/bus_protocols/SoC/43909" 
+"${adc_drivers_path}" 
+"${wicedsdk_dir}/WICED/network/NoNS/WWD"
+"${wicedsdk_dir}/WICED/RTOS/NoOS/WWD"
+"${wicedsdk_dir}/WICED/RTOS/NoOS/WWD/Cortex_R4"
+"${wicedsdk_dir}/libraries/utilities/crc" 
+"${wicedsdk_dir}/libraries/filesystems/wicedfs/src"  
+"${wicedsdk_dir}/WICED"
+"${wicedsdk_dir}/WICED/platform/include" 
+"${wicedsdk_dir}/libraries/utilities/wifi"
+"${wicedsdk_dir}/WICED/RTOS/NoOS" 
+#"${wicedsdk_dir}/apps/waf/bootloader"
+"${wicedsdk_dir}/libraries/utilities/linked_list"
+"${wicedsdk_dir}/WICED/WWD/internal/chips/4390x" 
+"${wicedsdk_dir}/include"
 )
 
-# Kernel
+
 afr_mcu_port(kernel)
 set(toolchain_path "${AFR_TOOLCHAIN_PATH}/../lib/gcc/arm-none-eabi/7.2.1")
-set(include_path "${AFR_TOOLCHAIN_PATH}/../arm-none-eabi/include")
 set(adc_drivers_path "${AFR_TOOLCHAIN_PATH}/../../../../libraries/drivers/adc/MAX11615")
 
 set(
@@ -210,7 +281,6 @@ set(
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/include"
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/tlsf"
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/spi_flash" 
-    "${wicedsdk_dir}/platforms/CYW943907AEVAL1F"
     "${wicedsdk_dir}/WICED/WWD/include" 
     "${wicedsdk_dir}/WICED/WWD/include/network" 
     "${wicedsdk_dir}/WICED/WWD/include/RTOS"
@@ -247,6 +317,72 @@ set(
 )
 
 
+add_executable(
+    dct_target
+        "${wicedsdk_dir}/WICED/internal/dct.c"
+        "${cypress94390_app_dir}/application_code/cypress_code/app_dct.c"
+)
+
+target_include_directories(
+    dct_target
+    PRIVATE
+        ${kernel_inc_dirs}
+)
+
+target_compile_definitions(
+    dct_target
+    PRIVATE $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${dct_defined_symbols}>
+)
+
+# Compiler flags
+target_compile_options(
+    dct_target
+    PRIVATE
+        ${common_flags}
+        $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${c_flags}>
+)
+
+
+# Linker flags
+target_link_options(
+    dct_target
+    PRIVATE 
+    ${linker_flags}
+    -Wl,-T "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/dct.ld"
+    -Wl,-Map,dct_target.map
+)
+
+#target_link_libraries(
+#    dct_target
+#        PRIVATE
+#        -Wl,-T"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/dct.ld"
+#        #-Wl,-Map,"${exe_target}.map"
+#)
+
+target_compile_definitions(
+    AFR::compiler::mcu_port
+    INTERFACE $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${defined_symbols}>
+)
+
+# Compiler flags
+target_compile_options(
+    AFR::compiler::mcu_port
+    INTERFACE
+        ${common_flags}
+        $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${c_flags}>
+)
+
+
+# Linker flags
+target_link_options(
+    AFR::compiler::mcu_port
+    INTERFACE ${linker_flags}
+)
+
+
+# Kernel
+
+
 afr_glob_src(apps_src DIRECTORY "${wicedsdk_dir}/apps" RECURSE)
 afr_glob_src(lwip_api_src DIRECTORY "${AFR_3RDPARTY_DIR}/lwip/src/api")
 afr_glob_src(lwip_apps_httpd_src DIRECTORY "${AFR_3RDPARTY_DIR}/lwip/src/apps/httpd")
@@ -259,12 +395,11 @@ afr_glob_src(lwip_apps_tftp_src DIRECTORY "${AFR_3RDPARTY_DIR}/lwip/src/apps/tft
 afr_glob_src(lwip_core_src DIRECTORY "${AFR_3RDPARTY_DIR}/lwip/src/core" RECURSE)
 afr_glob_src(lwip_netif_src DIRECTORY "${AFR_3RDPARTY_DIR}/lwip/src/netif" RECURSE)
 afr_glob_src(lwip_arch_src DIRECTORY "${AFR_3RDPARTY_DIR}/lwip/src/portable/arch")
-afr_glob_src(lwip_portable_src DIRECTORY "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW943907AEVAL1F" RECURSE)
+afr_glob_src(lwip_portable_src DIRECTORY "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW954507AEVAL1F" RECURSE)
 afr_glob_src(wwd_bus_protocol_chips_src DIRECTORY "${wicedsdk_dir}/WICED/internal")
 afr_glob_src(wwd_internal_src DIRECTORY "${wicedsdk_dir}/WICED/WWD/internal" RECURSE)
 afr_glob_src(wwd_FreeRTOS DIRECTORY "${wicedsdk_dir}/WICED/RTOS/FreeRTOS/WWD" RECURSE)
-afr_glob_src(shared_src DIRECTORY "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/shared")
-afr_glob_src(gcc_src DIRECTORY "${wicedsdk_dir}/WICED/platform/GCC")
+afr_glob_src( shared_src DIRECTORY "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/shared")
 
 set(platform_src
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/vector_table_GCC.S"
@@ -313,8 +448,10 @@ set( peripheral_src
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/platform_spi_flash.c"
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/platform_ascu.c"
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/platform_pwm.c"
-    #"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/platform_adc.c"
+    "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/platform_adc.c"
 )
+
+
 
 target_include_directories(
     AFR::kernel::mcu_port
@@ -322,60 +459,63 @@ target_include_directories(
         ${kernel_inc_dirs}
 )
 
+afr_glob_src(gcc_src DIRECTORY "${wicedsdk_dir}/WICED/platform/GCC")
+
 target_sources(
     AFR::kernel::mcu_port
     INTERFACE
-    "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Wiced_CY/portASM.S"
-    "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
-    "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Wiced_CY/port.c"
-    "${cypress94390_app_dir}/application_code/cypress_code/app_dct.c"
-    "${lwip_api_src}"
-    "${lwip_apps_httpd_src}"
-    "${lwip_apps_lwiperf_src}"
-    "${lwip_apps_mdns_src}"
-    "${lwip_apps_netbiosns_src}"
-    "${lwip_apps_snmp_src}"
-    "${lwip_apps_sntp_src}"
-    "${lwip_apps_tftp_src}"
-    "${lwip_core_src}"
-    "${lwip_netif_src}"
-    "${lwip_arch_src}"
-    "${lwip_portable_src}"
-    "${peripheral_src}"
-    "${wwd_FreeRTOS}"
-    "${wwd_internal_src}"
-    "${platform_src}"
-    "${platform_headers}"
-    "${shared_src}"
-    "${wicedsdk_dir}/WICED/RTOS/wiced_rtos_common.c"
-    "${wicedsdk_dir}/WICED/RTOS/FreeRTOS/WICED/wiced_rtos.c"
-    "${wicedsdk_dir}/WICED/network/wiced_network_common.c"
-    "${wicedsdk_dir}/WICED/network/wiced_tcpip_common.c"
-    "${wicedsdk_dir}/WICED/network/LwIP/WICED/wiced_network.c"
-    "${wicedsdk_dir}/WICED/network/LwIP/WICED/tcpip.c"
-    "${wicedsdk_dir}/WICED/network/LwIP/WICED/wiced_ping.c"
-    "${wicedsdk_dir}/libraries/filesystems/wicedfs/src/wicedfs.c"
-    "${wicedsdk_dir}/libraries/filesystems/wicedfs/wicedfs_drivers.c"
-    "${wicedsdk_dir}/libraries/filesystems/wicedfs/src/unit/wicedfs_unit_images.c"
-    "${wicedsdk_dir}/libraries/utilities/crc/crc.c"
-    "${wicedsdk_dir}/libraries/utilities/TLV/tlv.c"
-    "${wicedsdk_dir}/libraries/utilities/ring_buffer/ring_buffer.c"
-    "${wicedsdk_dir}/WICED/platform/GCC/cxx_funcs.c"
-    "${wicedsdk_dir}/platforms/CYW943907AEVAL1F/platform.c"
-    "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/spi_flash/spi_flash.c"
-    "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/spi_flash/spi_flash_compatible.c"
-    "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/uart/platform_uart.c"
-    "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/crypto/tiny_crypto/platform_tiny_crypto.c"
-    "${wicedsdk_dir}/WICED/internal/wiced_core.c"
-    "${wicedsdk_dir}/WICED/internal/wiced_low_power.c"
-    "${wicedsdk_dir}/WICED/internal/waf.c"
-    "${wicedsdk_dir}/WICED/internal/wifi.c"
-    "${wicedsdk_dir}/WICED/internal/wiced_crypto.c"
-    "${wicedsdk_dir}/WICED/internal/system_monitor.c"
-    "${wicedsdk_dir}/WICED/internal/wiced_lib.c"
-    "${wicedsdk_dir}/WICED/platform/MCU/wwd_resources.c"
-    "${wicedsdk_dir}/libraries/utilities/wifi/wifi_utils.c"
-    "${apps_src}"
+        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Wiced_CY/portASM.S"
+        "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
+        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Wiced_CY/port.c"
+        "${lwip_api_src}"
+        "${lwip_apps_httpd_src}"
+        "${lwip_apps_lwiperf_src}"
+        "${lwip_apps_mdns_src}"
+        "${lwip_apps_netbiosns_src}"
+        "${lwip_apps_snmp_src}"
+        "${lwip_apps_sntp_src}"
+        "${lwip_apps_tftp_src}"
+        "${lwip_core_src}"
+        "${lwip_netif_src}"
+        "${lwip_arch_src}"
+        "${lwip_portable_src}"
+        "${peripheral_src}"
+        "${wwd_FreeRTOS}"
+        "${wwd_internal_src}"
+        "${platform_src}"
+        "${shared_src}"
+        "${wicedsdk_dir}/WICED/RTOS/wiced_rtos_common.c"
+        "${wicedsdk_dir}/WICED/RTOS/FreeRTOS/WICED/wiced_rtos.c"
+        "${wicedsdk_dir}/WICED/network/wiced_network_common.c"
+        "${wicedsdk_dir}/WICED/network/wiced_tcpip_common.c"
+        "${wicedsdk_dir}/WICED/network/LwIP/WICED/wiced_network.c"
+        "${wicedsdk_dir}/WICED/network/LwIP/WICED/tcpip.c"
+        "${wicedsdk_dir}/WICED/network/LwIP/WICED/wiced_ping.c"
+        "${wicedsdk_dir}/libraries/filesystems/wicedfs/src/wicedfs.c"
+        "${wicedsdk_dir}/libraries/filesystems/wicedfs/wicedfs_drivers.c"
+        "${wicedsdk_dir}/libraries/filesystems/wicedfs/src/unit/wicedfs_unit_images.c"
+        "${wicedsdk_dir}/libraries/utilities/crc/crc.c"
+        "${wicedsdk_dir}/libraries/utilities/TLV/tlv.c"
+        "${wicedsdk_dir}/libraries/utilities/ring_buffer/ring_buffer.c"
+        "${wicedsdk_dir}/platforms/CYW943907AEVAL1F/platform.c"
+        "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/spi_flash/spi_flash.c"
+        "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/spi_flash/spi_flash_compatible.c"
+        "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/uart/platform_uart.c"
+        "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/crypto/tiny_crypto/platform_tiny_crypto.c"
+        "${wicedsdk_dir}/WICED/internal/wiced_core.c"
+        "${wicedsdk_dir}/WICED/internal/wiced_low_power.c"
+        "${wicedsdk_dir}/WICED/internal/waf.c"
+        "${wicedsdk_dir}/WICED/internal/wifi.c"
+        "${wicedsdk_dir}/WICED/internal/wiced_crypto.c"
+        "${wicedsdk_dir}/WICED/internal/system_monitor.c"
+        "${wicedsdk_dir}/WICED/internal/wiced_lib.c"
+        "${wicedsdk_dir}/WICED/platform/MCU/wwd_resources.c"
+        "${wicedsdk_dir}/libraries/utilities/wifi/wifi_utils.c"
+        "${wicedsdk_dir}/tiny_bootloader_bin2c.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW943907AEVAL1F/wwd_buffer.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW943907AEVAL1F/wwd_network.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW943907AEVAL1F/netif/ethernetif.c"
+        #"${cypress94390_app_dir}/application_code/cypress_code/app_dct.c"
 )
 
 
@@ -422,111 +562,13 @@ target_sources(
     INTERFACE "${AFR_MODULES_PORTS_DIR}/secure_sockets/lwip/aws_secure_sockets.c"
 )
 
-
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 file(COPY "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/BCM43907/GCC_tiny_bootloader_memory.ld" DESTINATION . )
 file(COPY "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/BCM43907/GCC_app_without_rom_memory.ld" DESTINATION .)
 file(COPY "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/ddr.ld" DESTINATION GCC/.)
-
 set(CMAKE_EXECUTABLE_SUFFIX ".elf")
-
-
-set(bootloader_target tiny_bootloader)
-
-afr_glob_src(wwd_NoOS DIRECTORY "${wicedsdk_dir}/WICED/RTOS/NoOS/WWD" RECURSE)
-
-set( tiny_bootloader_inc
-    #"${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Wiced_CY"
-    "${wicedsdk_dir}/include"
-    "${wicedsdk_dir}/libraries/utilities/ring_buffer" 
-    "${wicedsdk_dir}/libraries/utilities/crc"
-    "${wicedsdk_dir}/libraries/utilities/TLV"
-    "${wicedsdk_dir}/WICED"
-    "${wicedsdk_dir}/WICED/platform/include"
-    "${wicedsdk_dir}/WICED/platform/MCU"
-    "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x"
-    "${wicedsdk_dir}/WICED/platform/ARM_CR4"
-    "${wicedsdk_dir}/WICED/platform/GCC/" 
-    "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/WAF"
-    "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals"
-    "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/include"
-    "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/tlsf"
-    "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/spi_flash" 
-    "${wicedsdk_dir}/platforms/CYW943907AEVAL1F"
-    "${wicedsdk_dir}/WICED/WWD/include" 
-    "${wicedsdk_dir}/WICED/WWD/include/network" 
-    "${wicedsdk_dir}/WICED/WWD/include/RTOS"
-    "${wicedsdk_dir}/WICED/WWD"
-    "${wicedsdk_dir}/WICED/WWD/internal/bus_protocols/SoC/43909"
-    "${wicedsdk_dir}/WICED/WWD/internal/chips/4390x" 
-    "${wicedsdk_dir}/libraries/utilities/linked_list" 
-    "${wicedsdk_dir}/WICED/network/NoNS/WWD" 
-    "${wicedsdk_dir}/WICED/RTOS/NoOS"
-    "${wicedsdk_dir}/WICED/RTOS/NoOS/WWD"
-    "${wicedsdk_dir}/WICED/RTOS/NoOS/WWD/Cortex_R4"
-    "${wicedsdk_dir}/libraries/utilities/wifi"
-    "${wicedsdk_dir}/libraries/filesystems/wicedfs/src"
-    "${wicedsdk_dir}/platforms/CYW943907AEVAL1F"
-    "${wicedsdk_dir}/platforms/CYW943907AEVAL1F/board_revision/P103"
-    "${toolchain_path}/include"
-    "${toolchain_path}/include-fixed"
-    #"${adc_drivers_path}"
-)
-
-
-add_executable(
-    ${bootloader_target}
-    "${gcc_src}"
-    "${wicedsdk_dir}/WICED/platform/ARM_CR4/crt0_GCC.c"
-    "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/start_GCC.S"
-    "${wicedsdk_dir}/apps/waf/tiny_bootloader/tiny_bootloader.c"
-    #"${peripheral_src}"
-    #"${wwd_NoOS}"
-    #"${wwd_internal_src}"
-    #"${platform_src}"
-    #"${shared_src}"
-    #"${wicedsdk_dir}/libraries/filesystems/wicedfs/src/wicedfs.c"
-    #"${wicedsdk_dir}/libraries/filesystems/wicedfs/wicedfs_drivers.c"
-    #"${wicedsdk_dir}/libraries/filesystems/wicedfs/src/unit/wicedfs_unit_images.c"
-    #"${wicedsdk_dir}/libraries/utilities/crc/crc.c"
-    #"${wicedsdk_dir}/libraries/utilities/TLV/tlv.c"
-    #"${wicedsdk_dir}/libraries/utilities/ring_buffer/ring_buffer.c"
-    #"${wicedsdk_dir}/platforms/CYW943907AEVAL1F/platform.c"
-    #"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/spi_flash/spi_flash.c"
-    #"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/spi_flash/spi_flash_compatible.c"
-    #"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/uart/platform_uart.c"
-    #"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/crypto/tiny_crypto/platform_tiny_crypto.c"
-    #"${wicedsdk_dir}/WICED/internal/wiced_core.c"
-    #"${wicedsdk_dir}/WICED/internal/wiced_low_power.c"
-    #"${wicedsdk_dir}/WICED/internal/waf.c"
-    #"${wicedsdk_dir}/WICED/internal/wiced_crypto.c"
-    #"${wicedsdk_dir}/WICED/internal/system_monitor.c"
-    #"${wicedsdk_dir}/WICED/internal/wiced_lib.c"
-    #"${wicedsdk_dir}/WICED/platform/MCU/wwd_resources.c"
-    #"${wicedsdk_dir}/WICED/network/NoNS/WWD/wwd_buffer.c"
-)
-
-target_include_directories(
-    ${bootloader_target}
-    PRIVATE
-        ${tiny_bootloader_inc}
-)
-
-target_link_libraries(
-    ${bootloader_target}
-    PRIVATE
-        #AFR::tiny_bootloader_target
-        AFR::compiler::mcu_port
-        "${AFR_TOOLCHAIN_PATH}/../lib/gcc/arm-none-eabi/7.2.1/thumb/v7-ar/libgcc.a"
-        "${AFR_TOOLCHAIN_PATH}/../arm-none-eabi/lib/thumb/v7-ar/libm.a"
-        "${AFR_TOOLCHAIN_PATH}/../arm-none-eabi/lib/thumb/v7-ar/libc.a"
-        "${AFR_TOOLCHAIN_PATH}/../arm-none-eabi/lib/thumb/v7-ar/libstdc++.a"
-        -Wl,-T"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/dct.ld"
-        -Wl,-T"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/tiny_bootloader.ld"
-
-)
 
 if(AFR_IS_TESTING)
     set(exe_target aws_tests)
@@ -534,12 +576,12 @@ else()
     set(exe_target aws_demos)
 endif()
 
-
 afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 afr_glob_src(board_code_src DIRECTORY "${cypress94390_app_dir}/application_code/cypress_code")
 add_executable(
     ${exe_target}
-    ${board_code_src}  
+    ${board_code_src}
+    ${gcc_src}
     "$<$<NOT:${AFR_IS_TESTING}>:${network_manager_src}>"
     "${cypress94390_app_dir}/application_code/main.c"
     "${cypress94390_ports_dir}/pkcs11/hw_poll.c"
@@ -553,10 +595,10 @@ target_link_libraries(
         AFR::utils
         "${AFR_TOOLCHAIN_PATH}/../lib/gcc/arm-none-eabi/7.2.1/thumb/v7-ar/libgcc.a"
         "${AFR_TOOLCHAIN_PATH}/../arm-none-eabi/lib/thumb/v7-ar/libm.a"
-        "${AFR_TOOLCHAIN_PATH}/../arm-none-eabi/lib/thumb/v7-ar/libc.a"
+        #"${AFR_TOOLCHAIN_PATH}/../arm-none-eabi/lib/thumb/v7-ar/libc.a"
         "${AFR_TOOLCHAIN_PATH}/../arm-none-eabi/lib/thumb/v7-ar/libstdc++.a"
-        -Wl,-T"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/dct.ld"
         -Wl,-T"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/app_without_rom.ld"
+        -Wl,-Map,"${exe_target}.map"
 )
 
 find_program(gcc_objcopy arm-none-eabi-objcopy)
@@ -565,10 +607,59 @@ if(NOT gcc_objcopy)
     message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
 endif()
 
-set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
+set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.bin")
 add_custom_command(
     TARGET ${exe_target} POST_BUILD
-    COMMAND "${gcc_objcopy}" -v -O ihex "$<TARGET_FILE:${exe_target}>"
+    COMMAND "${gcc_objcopy}" -O binary -R .eh_frame -R .init -R .fini -R .comment -R .ARM.attributes
+    "$<TARGET_FILE:${exe_target}>"
     "${output_file}"
 )
+
+find_program(eabi_strip arm-none-eabi-strip)
+
+if(NOT eabi_strip)
+    message(FATAL_ERROR "Cannot find arm-none-eabi-strip")
+endif()
+
+set(strip_output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.stripped.elf")
+
+add_custom_command(
+    TARGET ${exe_target} POST_BUILD
+    COMMAND "${eabi_strip}" -o
+    "${strip_output_file}"
+    "$<TARGET_FILE:${exe_target}>"
+
+)
+
+# Making filesystem
+execute_process(
+    COMMAND "${AFR_TOOLCHAIN_PATH}/../../../common/OSX/mk_wicedfs32" "filesystem.bin" 
+    "${wicedsdk_dir}/resources/firmware/"
+)
+
+# Variables for app lookup table
+
+add_custom_command(
+    TARGET ${exe_target} POST_BUILD
+    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/sector_number.pl" "0x00011000" "4096"
+    FILESYSTEM_IMAGE_SECTOR_START
+)
+
+execute_process(
+    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/sector_count.pl" "filesystem.bin" "0" "4096"
+    OUTPUT_VARIABLE FILESYSTEM_IMAGE_SECTOR_COUNT
+)
+
+execute_process(
+    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/sector_number.pl" "561152" "4096"
+    OUTPUT_VARIABLE APP0_SECTOR_START
+)
+
+execute_process(
+    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/sector_count.pl" "${strip_output_file}" "0" "4096"
+    OUTPUT_VARIABLE APP0_SECTOR_COUNT
+)
+
+
+message("${FILESYSTEM_IMAGE_SECTOR_START}")
 

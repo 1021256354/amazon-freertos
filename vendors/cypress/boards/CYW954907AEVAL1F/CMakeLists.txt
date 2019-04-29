@@ -622,6 +622,7 @@ if(NOT eabi_strip)
 endif()
 
 set(strip_output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.stripped.elf")
+
 add_custom_command(
     TARGET ${exe_target} POST_BUILD
     COMMAND "${eabi_strip}" -o
@@ -635,3 +636,30 @@ execute_process(
     COMMAND "${AFR_TOOLCHAIN_PATH}/../../../common/OSX/mk_wicedfs32" "filesystem.bin" 
     "${wicedsdk_dir}/resources/firmware/"
 )
+
+# Variables for app lookup table
+
+add_custom_command(
+    TARGET ${exe_target} POST_BUILD
+    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/sector_number.pl" "0x00011000" "4096"
+    FILESYSTEM_IMAGE_SECTOR_START
+)
+
+execute_process(
+    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/sector_count.pl" "filesystem.bin" "0" "4096"
+    OUTPUT_VARIABLE FILESYSTEM_IMAGE_SECTOR_COUNT
+)
+
+execute_process(
+    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/sector_number.pl" "561152" "4096"
+    OUTPUT_VARIABLE APP0_SECTOR_START
+)
+
+execute_process(
+    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/sector_count.pl" "${strip_output_file}" "0" "4096"
+    OUTPUT_VARIABLE APP0_SECTOR_COUNT
+)
+
+
+message("${FILESYSTEM_IMAGE_SECTOR_START}")
+
