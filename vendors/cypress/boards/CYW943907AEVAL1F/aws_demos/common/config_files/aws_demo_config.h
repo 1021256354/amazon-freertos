@@ -31,6 +31,7 @@
 /* Default configuration for all demos. Individual demos can override these below */
 #define democonfigDEMO_STACKSIZE               ( configMINIMAL_STACK_SIZE * 8 )
 #define democonfigDEMO_PRIORITY                ( tskIDLE_PRIORITY + 5 )
+#define democonfigNETWORK_TYPES                ( AWSIOT_NETWORK_TYPE_WIFI )
 
 /* Some individual demos want to override these defaults, that is done in this section */
 #if defined(democonfigTCP_ECHO_TASKS_SEPARATE_ENABLED)
@@ -46,6 +47,7 @@
     #undef democonfigDEMO_PRIORITY
     #define democonfigDEMO_PRIORITY                         ( tskIDLE_PRIORITY + 5 ) 
 #endif
+
 
 #define democonfigSHADOW_DEMO_NUM_TASKS             ( 2 )
 #define democonfigSHADOW_DEMO_TASK_STACK_SIZE       ( configMINIMAL_STACK_SIZE * 4 )
