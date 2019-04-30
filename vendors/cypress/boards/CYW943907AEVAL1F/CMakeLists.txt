@@ -352,12 +352,154 @@ target_link_options(
     -Wl,-Map,dct_target.map
 )
 
-#target_link_libraries(
-#    dct_target
-#        PRIVATE
-#        -Wl,-T"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/dct.ld"
-#        #-Wl,-Map,"${exe_target}.map"
-#)
+find_program(gcc_objcopy arm-none-eabi-objcopy)
+
+if(NOT gcc_objcopy)
+    message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
+endif()
+
+set(dct_output_file "$<TARGET_FILE_DIR:dct_target>/dct_target.bin")
+
+add_custom_command(
+    TARGET dct_target POST_BUILD
+    COMMAND "${gcc_objcopy}" -O binary -R .eh_frame -R .init -R .fini -R .comment -R .ARM.attributes
+    "$<TARGET_FILE:dct_target>"
+    "${dct_output_file}"
+)
+
+set(
+    lut_defined_symbols
+    FR_APP_ENTRY_COUNT=0
+    FR_APP_SECTOR_START=0
+    FR_APP_SECTOR_COUNT=0
+    FR_APP_IS_SECURE=0
+    DCT_IMAGE_ENTRY_COUNT=0
+    DCT_IMAGE_SECTOR_START=0
+    DCT_IMAGE_SECTOR_COUNT=0
+    DCT_IMAGE_IS_SECURE=0
+    OTA_APP_ENTRY_COUNT=0
+    OTA_APP_SECTOR_START=0
+    OTA_APP_SECTOR_COUNT=0
+    OTA_APP_IS_SECURE=0
+    FILESYSTEM_IMAGE_ENTRY_COUNT=1
+    FILESYSTEM_IMAGE_SECTOR_START=17
+    FILESYSTEM_IMAGE_SECTOR_COUNT=120
+    FILESYSTEM_IMAGE_IS_SECURE=0
+    WIFI_FIRMWARE_ENTRY_COUNT=0
+    WIFI_FIRMWARE_SECTOR_START=0
+    WIFI_FIRMWARE_SECTOR_COUNT=0
+    WIFI_FIRMWARE_IS_SECURE=0
+    APP0_ENTRY_COUNT=1
+    APP0_SECTOR_START=137
+    APP0_SECTOR_COUNT=77
+    APP0_IS_SECURE=0
+    APP1_ENTRY_COUNT=0
+    APP1_SECTOR_START=0
+    APP1_SECTOR_COUNT=0
+    APP1_IS_SECURE=0
+    APP2_ENTRY_COUNT=0
+    APP2_SECTOR_START=0
+    APP2_SECTOR_COUNT=0
+    APP2_IS_SECURE=0
+    SFLASH_APPS_HEADER_LOC=0x00010000
+    PLATFORM_NO_DDR=1
+    PLATFORM_NO_GMAC=1
+    PLATFORM_HAS_HW_CRYPTO_SUPPORT
+    OTP_WORD_NUM_SHA_KEY=258
+    OTP_WORD_NUM_SHA_KEY_R=242
+    OTP_WORD_NUM_AES_KEY=282
+    OTP_WORD_NUM_AES_KEY_R=274
+    SECUREBOOT_SHA_KEY_SIZE=32
+    GSIO_I2C_REPEATED_START_NEEDS_GPIO=1
+    PLATFORM_HIB_WAKE_CTRL_FREQ_BITS_FLIPPED
+    CRLF_STDIO_REPLACEMENT
+    WICED_DISABLE_CONFIG_TLS
+    PLATFORM_SECURESFLASH_ENABLED=0
+    PLATFORM_SECUREDCT_ENABLED=0
+    NORMAL_IMAGE_DCT_1_AREA_BASE=0x00008000
+    MIN_WM8533_DB_LEVEL=-53.0
+    MAX_WM8533_DB_LEVEL=6.0
+    PLATFORM_ALP_CLOCK_RES_FIXUP=0
+    MAX_WATCHDOG_TIMEOUT_SECONDS=22
+    MAX_WAKE_FROM_SLEEP_DELAY_TICKS=500
+    PLATFORM_L1_CACHE_SHIFT=5
+    PLATFORM_SUPPORTS_LOW_POWER_MODES
+    BCM43909
+    ENABLE_ARM_DSP_INSTRUCTIONS
+    PLAT_NOTIFY_FREE
+    USING_WICEDFS
+    WICED_USE_WIFI_P2P_INTERFACE
+    wifi_firmware_image=resources_firmware_DIR_43909_DIR_43909B0_bin
+    LWIP_SO_RCVBUF=1
+    COMMAND_CONSOLE_P2P_ENABLED
+    COMMAND_CONSOLE_WPS_ENABLED
+    WWD_STARTUP_DELAY=10
+    BOOTLOADER_MAGIC_NUMBER=0x4d435242
+    SFLASH_SUPPORT_MACRONIX_PARTS
+    USING_EXTERNAL_ADC
+    NETWORK_LwIP=1
+    LwIP_VERSION=\"v2.0.3\"
+    RTOS_FreeRTOS=1
+    configUSE_MUTEXES
+    configUSE_RECURSIVE_MUTEXES
+    FreeRTOS_VERSION=\"v9.0.0\"
+    TX_PACKET_POOL_SIZE=50
+    RX_PACKET_POOL_SIZE=50
+    WICED_TCP_TX_DEPTH_QUEUE=32
+    WICED_ETHERNET_DESCNUM_TX=32
+    WICED_ETHERNET_DESCNUM_RX=8
+    WICED_ETHERNET_RX_PACKET_POOL_SIZE=40+WICED_ETHERNET_DESCNUM_RX
+    WICED_TCP_WINDOW_SIZE=32768
+    CONSOLE_THREAD_STACK_SIZE=8*1024
+    CONSOLE_ENABLE_THREADS
+    WICED_DCT_INCLUDE_P2P_CONFIG
+    WWD_IOCTL_LOG_ENABLE
+    WICED_SDK_WIFI_CONFIG_DCT_H=\"${wicedsdk_dir}/include/default_wifi_config_dct.h\"
+    WICED_SDK_BT_CONFIG_DCT_H=\"${wicedsdk_dir}/include/default_bt_config_dct.h\"
+)
+
+add_executable(
+    lut_target
+        "${wicedsdk_dir}/WICED/platform/MCU/wiced_apps_lut.c"
+)
+
+target_include_directories(
+    lut_target
+    PRIVATE
+        ${kernel_inc_dirs}
+)
+
+target_compile_definitions(
+    lut_target
+    PRIVATE $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${lut_defined_symbols}>
+)
+
+# Compiler flags
+target_compile_options(
+    lut_target
+    PRIVATE
+        ${common_flags}
+        $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${c_flags}>
+)
+
+# Linker flags
+target_link_options(
+    lut_target
+    PRIVATE 
+        ${linker_flags}
+        -Wl,-T "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/GCC/dct.ld"
+        -Wl,-Map,lut_target.map
+)
+
+set(lut_output_file "$<TARGET_FILE_DIR:lut_target>/lut_target.bin")
+add_custom_command(
+    TARGET lut_target POST_BUILD
+    COMMAND "${gcc_objcopy}" -O binary -R .eh_frame -R .init -R .fini -R .comment -R .ARM.attributes
+    "$<TARGET_FILE:lut_target>"
+    "${lut_output_file}"
+)
+
+
 
 target_compile_definitions(
     AFR::compiler::mcu_port
@@ -382,7 +524,6 @@ target_link_options(
 
 # Kernel
 
-
 afr_glob_src(apps_src DIRECTORY "${wicedsdk_dir}/apps" RECURSE)
 afr_glob_src(lwip_api_src DIRECTORY "${AFR_3RDPARTY_DIR}/lwip/src/api")
 afr_glob_src(lwip_apps_httpd_src DIRECTORY "${AFR_3RDPARTY_DIR}/lwip/src/apps/httpd")
@@ -399,7 +540,7 @@ afr_glob_src(lwip_portable_src DIRECTORY "${AFR_3RDPARTY_DIR}/lwip/src/portable/
 afr_glob_src(wwd_bus_protocol_chips_src DIRECTORY "${wicedsdk_dir}/WICED/internal")
 afr_glob_src(wwd_internal_src DIRECTORY "${wicedsdk_dir}/WICED/WWD/internal" RECURSE)
 afr_glob_src(wwd_FreeRTOS DIRECTORY "${wicedsdk_dir}/WICED/RTOS/FreeRTOS/WWD" RECURSE)
-afr_glob_src( shared_src DIRECTORY "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/shared")
+afr_glob_src(shared_src DIRECTORY "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/shared")
 
 set(platform_src
     "${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/vector_table_GCC.S"
@@ -601,11 +742,6 @@ target_link_libraries(
         -Wl,-Map,"${exe_target}.map"
 )
 
-find_program(gcc_objcopy arm-none-eabi-objcopy)
-
-if(NOT gcc_objcopy)
-    message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
-endif()
 
 set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.bin")
 add_custom_command(
@@ -639,27 +775,26 @@ execute_process(
 
 # Variables for app lookup table
 
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/sector_number.pl" "0x00011000" "4096"
-    FILESYSTEM_IMAGE_SECTOR_START
-)
+#add_custom_command(
+#    ALWAYS_DO_POST_BUILD
+#    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/sector_number.pl" "0x00011000" "4096"
+#    OUTPUT FILESYSTEM_IMAGE_SECTOR_START
+#)
 
-execute_process(
-    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/sector_count.pl" "filesystem.bin" "0" "4096"
-    OUTPUT_VARIABLE FILESYSTEM_IMAGE_SECTOR_COUNT
-)
+#execute_process(
+#    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/sector_count.pl" "filesystem.bin" "0" "4096"
+#    OUTPUT_VARIABLE FILESYSTEM_IMAGE_SECTOR_COUNT
+#)
 
-execute_process(
-    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/sector_number.pl" "561152" "4096"
-    OUTPUT_VARIABLE APP0_SECTOR_START
-)
+#execute_process(
+#    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/sector_number.pl" "561152" "4096"
+#    OUTPUT_VARIABLE APP0_SECTOR_START
+#)
 
-execute_process(
-    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/sector_count.pl" "${strip_output_file}" "0" "4096"
-    OUTPUT_VARIABLE APP0_SECTOR_COUNT
-)
+#execute_process(
+#    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/sector_count.pl" "${strip_output_file}" "0" "4096"
+#    OUTPUT_VARIABLE APP0_SECTOR_COUNT
+#)
 
 
-message("${FILESYSTEM_IMAGE_SECTOR_START}")
 

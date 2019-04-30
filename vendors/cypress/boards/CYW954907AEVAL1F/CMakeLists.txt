@@ -660,6 +660,7 @@ execute_process(
     OUTPUT_VARIABLE APP0_SECTOR_COUNT
 )
 
-
+file(SIZE "filesystem.bin" FS_SIZE)
+message("Filesystem: ${FS_SIZE}")
 message("${FILESYSTEM_IMAGE_SECTOR_START}")
 
