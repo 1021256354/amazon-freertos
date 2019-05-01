@@ -91,7 +91,7 @@ file(APPEND "${resources_file}" "${resources_string}")
 execute_process(
     COMMAND "${AFR_TOOLCHAIN_PATH}/../../../common/OSX/bin2c"
         "${wicedsdk_dir}/waf.tiny_bootloader-NoOS-NoNS-CYW943907AEVAL1F-P103-SoC.43909.bin"
-        "${wicedsdk_dir}/tiny_bootloader_bin2c.c" tinybl_bin
+        "${wicedsdk_dir}/libraries/utilities/wifi/tiny_bootloader_bin2c.c" tinybl_bin
 )
 
 # -------------------------------------------------------------------------------------------------
@@ -219,45 +219,6 @@ set(dct_defined_symbols
 )
 
 
-set(dct_include_dirs
-"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/spi_flash"
-"${wicedsdk_dir}/libraries/utilities/ring_buffer" 
-"${wicedsdk_dir}/WICED/platform/GCC"
-"${wicedsdk_dir}/libraries/utilities/crc"
-"${wicedsdk_dir}/libraries/utilities/TLV"
-"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x"
-"${wicedsdk_dir}/WICED/platform/MCU"
-"${wicedsdk_dir}/WICED/platform/ARM_CR4"
-"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/WAF"
-"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals"
-"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/include"
-"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/tlsf" 
-"${wicedsdk_dir}/WICED/platform/MCU/BCM4390x/peripherals/spi_flash"
-"${wicedsdk_dir}/platforms/CYW943907AEVAL1F"
-"${wicedsdk_dir}/platforms/CYW943907AEVAL1F/board_revision/P103"
-"${wicedsdk_dir}/WICED/platform/include"
-"${wicedsdk_dir}/WICED/WWD"
-"${wicedsdk_dir}/WICED/WWD/include"
-"${wicedsdk_dir}/WICED/WWD/include/network"
-"${wicedsdk_dir}/WICED/WWD/include/RTOS"
-"${wicedsdk_dir}/WICED/WWD/internal/bus_protocols/SoC/43909" 
-"${adc_drivers_path}" 
-"${wicedsdk_dir}/WICED/network/NoNS/WWD"
-"${wicedsdk_dir}/WICED/RTOS/NoOS/WWD"
-"${wicedsdk_dir}/WICED/RTOS/NoOS/WWD/Cortex_R4"
-"${wicedsdk_dir}/libraries/utilities/crc" 
-"${wicedsdk_dir}/libraries/filesystems/wicedfs/src"  
-"${wicedsdk_dir}/WICED"
-"${wicedsdk_dir}/WICED/platform/include" 
-"${wicedsdk_dir}/libraries/utilities/wifi"
-"${wicedsdk_dir}/WICED/RTOS/NoOS" 
-#"${wicedsdk_dir}/apps/waf/bootloader"
-"${wicedsdk_dir}/libraries/utilities/linked_list"
-"${wicedsdk_dir}/WICED/WWD/internal/chips/4390x" 
-"${wicedsdk_dir}/include"
-)
-
-
 afr_mcu_port(kernel)
 set(toolchain_path "${AFR_TOOLCHAIN_PATH}/../lib/gcc/arm-none-eabi/7.2.1")
 set(adc_drivers_path "${AFR_TOOLCHAIN_PATH}/../../../../libraries/drivers/adc/MAX11615")
@@ -301,13 +262,13 @@ set(
     "${wicedsdk_dir}/platforms/CYW943907AEVAL1F/board_revision/P103"
     "${AFR_3RDPARTY_DIR}/jsmn"
     "${AFR_3RDPARTY_DIR}/pkcs11"
+    "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"
     "${AFR_3RDPARTY_DIR}/lwip/src/include"
     "${AFR_3RDPARTY_DIR}/lwip/src/include/lwip"
     "${AFR_3RDPARTY_DIR}/lwip/src/portable"
     "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW943907AEVAL1F"
     "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW943907AEVAL1F/include"
     "${AFR_3RDPARTY_DIR}/lwip/src/portable/arch"
-    "${AFR_3RDPARTY_DIR}/mbedtls/include"
     "${cypress94390_app_dir}/application_code/cypress_code/include"
     "${cypress94390_app_dir}/config_files"
     "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
@@ -391,7 +352,7 @@ set(
     WIFI_FIRMWARE_IS_SECURE=0
     APP0_ENTRY_COUNT=1
     APP0_SECTOR_START=137
-    APP0_SECTOR_COUNT=77
+    APP0_SECTOR_COUNT=75
     APP0_IS_SECURE=0
     APP1_ENTRY_COUNT=0
     APP1_SECTOR_START=0
@@ -652,11 +613,9 @@ target_sources(
         "${wicedsdk_dir}/WICED/internal/wiced_lib.c"
         "${wicedsdk_dir}/WICED/platform/MCU/wwd_resources.c"
         "${wicedsdk_dir}/libraries/utilities/wifi/wifi_utils.c"
-        "${wicedsdk_dir}/tiny_bootloader_bin2c.c"
         "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW943907AEVAL1F/wwd_buffer.c"
         "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW943907AEVAL1F/wwd_network.c"
         "${AFR_3RDPARTY_DIR}/lwip/src/portable/cypress/CYW943907AEVAL1F/netif/ethernetif.c"
-        #"${cypress94390_app_dir}/application_code/cypress_code/app_dct.c"
 )
 
 
@@ -673,6 +632,7 @@ target_sources(
 
 # PKCS11
 afr_mcu_port(pkcs11)
+
 target_sources(
     AFR::pkcs11::mcu_port
     INTERFACE 
@@ -723,6 +683,7 @@ add_executable(
     ${exe_target}
     ${board_code_src}
     ${gcc_src}
+    "${wicedsdk_dir}/libraries/utilities/wifi/tiny_bootloader_bin2c.c"
     "$<$<NOT:${AFR_IS_TESTING}>:${network_manager_src}>"
     "${cypress94390_app_dir}/application_code/main.c"
     "${cypress94390_ports_dir}/pkcs11/hw_poll.c"
@@ -773,28 +734,7 @@ execute_process(
     "${wicedsdk_dir}/resources/firmware/"
 )
 
-# Variables for app lookup table
 
-#add_custom_command(
-#    ALWAYS_DO_POST_BUILD
-#    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/sector_number.pl" "0x00011000" "4096"
-#    OUTPUT FILESYSTEM_IMAGE_SECTOR_START
-#)
-
-#execute_process(
-#    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/sector_count.pl" "filesystem.bin" "0" "4096"
-#    OUTPUT_VARIABLE FILESYSTEM_IMAGE_SECTOR_COUNT
-#)
-
-#execute_process(
-#    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/sector_number.pl" "561152" "4096"
-#    OUTPUT_VARIABLE APP0_SECTOR_START
-#)
-
-#execute_process(
-#    COMMAND "${PERL}" "${AFR_TOOLCHAIN_PATH}/../../../text_to_c/sector_count.pl" "${strip_output_file}" "0" "4096"
-#    OUTPUT_VARIABLE APP0_SECTOR_COUNT
-#)
 
 
 
