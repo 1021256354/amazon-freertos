@@ -541,18 +541,22 @@ int vStartOTAUpdateDemoTask( bool awsIotMqttMode,
         {
         	if(( appState == BLE_MQTT_ECHO_DEMO_STATE_CONNECT_INIT)||(appState == BLE_MQTT_ECHO_DEMO_INIT_STATE))
         	{
-                do{
-        			ret = _establishMqttConnection(awsIotMqttMode,
-        										   pIdentifier,
-        										   pNetworkServerInfo,
-        										   pNetworkCredentialInfo,
-        										   pNetworkInterface,
-        										   &mqttConnection);
-                }while(ret != EXIT_SUCCESS);
+				ret = _establishMqttConnection(awsIotMqttMode,
+											   pIdentifier,
+											   pNetworkServerInfo,
+											   pNetworkCredentialInfo,
+											   pNetworkInterface,
+											   &mqttConnection);
 
-        		OTA_AgentInit( mqttConnection, ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 );
 
-        		appState = BLE_MQTT_ECHO_DEMO_STATE_CONNECTED;
+				if(ret == EXIT_SUCCESS)
+				{
+					OTA_AgentInit( mqttConnection, ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 );
+					appState = BLE_MQTT_ECHO_DEMO_STATE_CONNECTED;
+				}else
+				{
+                    IotClock_SleepMs(100);
+				}
         	}
         	else if (appState == BLE_MQTT_ECHO_DEMO_STATE_CONNECTED)
             {
@@ -578,9 +582,9 @@ int vStartOTAUpdateDemoTask( bool awsIotMqttMode,
                             (mqttStatus == IOT_MQTT_TIMEOUT) ||
                             (mqttStatus == IOT_MQTT_RETRY_NO_RESPONSE))
                         {
-                            /* These MQTT errors are related to transient network issues
-                               or a network disconnect. */
-                        	/* Could happen if an OTA is performed at the same time. */
+                            OTA_AgentShutdown( ( TickType_t ) ~0 );
+                            IotMqtt_Disconnect(mqttConnection, 0);
+                            appState = BLE_MQTT_ECHO_DEMO_STATE_CONNECT_INIT;
                         }
                         else
                         {
