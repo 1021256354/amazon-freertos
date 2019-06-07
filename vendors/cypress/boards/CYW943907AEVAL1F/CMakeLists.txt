@@ -90,7 +90,7 @@ file(APPEND "${resources_file}" "${resources_string}")
 
 execute_process(
     COMMAND "${AFR_TOOLCHAIN_PATH}/../../../common/OSX/bin2c"
-        "${wicedsdk_dir}/waf.tiny_bootloader-NoOS-NoNS-CYW943907AEVAL1F-P103-SoC.43909.bin"
+        "${wicedsdk_dir}/platforms/CYW943907AEVAL1F/waf.tiny_bootloader-NoOS-NoNS-CYW943907AEVAL1F-P103-SoC.43909.bin"
         "${wicedsdk_dir}/libraries/utilities/wifi/tiny_bootloader_bin2c.c" tinybl_bin
 )
 
