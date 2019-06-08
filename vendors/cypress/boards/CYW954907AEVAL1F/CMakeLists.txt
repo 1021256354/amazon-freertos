@@ -537,7 +537,7 @@ target_sources(
     INTERFACE 
         "${cypress95490_ports_dir}/pkcs11/aws_pkcs11_pal.c"
         "${cypress95490_ports_dir}/pkcs11/hw_poll.c"
-        "${AFR_MODULES_PORTS_DIR}/pkcs11/mbedtls/aws_pkcs11_mbedtls.c"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/aws_pkcs11_mbedtls.c"
 )
 
 # Link to AFR::pkcs11_mbedtls if you want to use default implementation based on mbedtls.
@@ -559,7 +559,7 @@ target_link_libraries(
 
 target_sources(
     AFR::secure_sockets::mcu_port
-    INTERFACE "${AFR_MODULES_PORTS_DIR}/secure_sockets/lwip/aws_secure_sockets.c"
+    INTERFACE "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/lwip/aws_secure_sockets.c"
 )
 
 # -------------------------------------------------------------------------------------------------
