@@ -1,4 +1,4 @@
-afr_module()
+afr_module(INTERFACE)
 
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
@@ -13,11 +13,8 @@ afr_module_include_dirs(
 
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
-    PUBLIC
+    INTERFACE
         3rdparty::pkcs11
-    INTERFACE 
-        AFR::pkcs11
-    PRIVATE
         AFR::${AFR_CURRENT_MODULE}::mcu_port
 )
 
