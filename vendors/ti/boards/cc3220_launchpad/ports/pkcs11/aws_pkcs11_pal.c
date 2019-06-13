@@ -39,7 +39,6 @@
 #include "aws_clientcredential.h"
 #include "aws_secure_sockets_config.h"
 #include "aws_pkcs11_config.h"
-#include "aws_pkcs11_mbedtls.h"
 #include "aws_pkcs11_pal.h"
 
 /* flash driver includes. */

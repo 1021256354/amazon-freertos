@@ -5,9 +5,10 @@ set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
-    PUBLIC "${inc_dir}"
-    # Requires standard/common/include/private/aws_default_root_certificates.h
-    PRIVATE "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
+    INTERFACE
+        "${inc_dir}"
+        # Requires standard/common/include/private/aws_default_root_certificates.h
+        "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
 
 )
 
@@ -51,4 +52,5 @@ afr_module_dependencies(
     INTERFACE
         AFR::pkcs11
         AFR::crypto
+        AFR::pkcs11_implementation
 )
